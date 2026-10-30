@@ -539,21 +539,21 @@ select.ctl { appearance: none; padding-right: 10px; }
         // Raw data goes through the four steps: cleaned, checked (a bad row stops), named, then served to consumers
         U(1, 1, T(640, 690, 'how Vulcan builds a data product', 'sm dim') +
              `<line class="il d" x1="250" y1="840" x2="1010" y2="840"/>` +
-             [[196, 812, 30, 12, 8], [226, 836, 18, 18, -12], [190, 862, 26, 10, 20], [232, 872, 14, 14, 30], [214, 800, 16, 10, -25]].map(([x, y, w, h, r]) =>
+             soon([[196, 812, 30, 12, 8], [226, 836, 18, 18, -12], [190, 862, 26, 10, 20], [232, 872, 14, 14, 30], [214, 800, 16, 10, -25]].map(([x, y, w, h, r]) =>
                `<rect class="il d fillp" x="${x}" y="${y}" width="${w}" height="${h}" rx="2" transform="rotate(${r} ${x + w / 2} ${y + h / 2})"/>`).join('') +
-             T(222, 912, 'raw data', 'sm dim') +
+             T(222, 912, 'raw data', 'sm dim'), 4.6) +
              [['Transform', spin(340, 840, gear(340, 840), 5), 'clean, joined tables'], ['Check', shield(540, 842, 't'), 'bad rows stopped'], ['Describe', tag(742, 840), 'names and meaning'], ['Serve', sparkle(940, 840), 'APIs, dashboards, AI']].map(([t, ic, sub], i) =>
                pop(0.2 + i * 0.3, `<circle class="il t fillp" cx="${340 + i * 200}" cy="840" r="44"/>` + ic + T(340 + i * 200, 920, t, 'ttl') + T(340 + i * 200, 944, sub, 'sm dim'))).join('') +
-             [4.2, 6.2, 7.4, 8.6].map((d, i) => pop(d, `<circle class="il t pulse" cx="${340 + i * 200}" cy="840" r="54"/>`)).join('') +
+             [4.2, 6.2, 7.4, 8.6].map((d, i) => soon(pop(d, `<circle class="il t" cx="${340 + i * 200}" cy="840" r="54"/>`), d + 1.6)).join('') +
              // Transform: messy pieces become neat rows
-             [0, 1, 2].map(i => fly(230, 820 + i * 20, 440, 822 + i * 14, 0.9, `<rect class="tealfill" x="-22" y="-5" width="44" height="10" rx="3"/>`, 4.4 + i * 0.15)).join('') +
+             soon([0, 1, 2].map(i => fly(230, 820 + i * 20, 440, 822 + i * 14, 0.9, `<rect class="tealfill" x="-22" y="-5" width="44" height="10" rx="3"/>`, 4.4 + i * 0.15)).join(''), 6.6) +
              // Check: a bad row is pushed out at the shield
-             fly(440, 840, 540, 776, 0.8, R(-18, -8, 36, 16, 'badrow', 4) + P('M-5 -5 l10 10 m0 -10 l-10 10', 'il e'), 6.3) +
-             pop(6.9, T(540, 760, 'stopped', 'sm warn')) +
-             [0, 1, 2].map(i => fly(440, 822 + i * 14, 640, 822 + i * 14, 0.8, `<rect class="tealfill" x="-22" y="-5" width="44" height="10" rx="3"/>`, 6.6 + i * 0.1)).join('') +
+             soon(fly(440, 840, 540, 776, 0.8, R(-18, -8, 36, 16, 'badrow', 4) + P('M-5 -5 l10 10 m0 -10 l-10 10', 'il e'), 6.3) +
+               pop(6.9, T(540, 760, 'stopped', 'sm warn')), 8.2) +
+             soon([0, 1, 2].map(i => fly(440, 822 + i * 14, 640, 822 + i * 14, 0.8, `<rect class="tealfill" x="-22" y="-5" width="44" height="10" rx="3"/>`, 6.6 + i * 0.1)).join(''), 8.1) +
              // Describe: names attach to the clean data, which then moves on to be served
-             pop(7.6, chip(600, 762, 90, 'revenue', 't')) + pop(7.8, chip(696, 762, 80, 'store', 't')) +
-             [0, 1, 2].map(i => fly(640, 822 + i * 14, 840, 822 + i * 14, 0.8, `<rect class="tealfill" x="-22" y="-5" width="44" height="10" rx="3"/>`, 8.1 + i * 0.1)).join('') +
+             soon(pop(7.6, chip(600, 762, 90, 'revenue', 't')) + pop(7.8, chip(696, 762, 80, 'store', 't')) +
+               [0, 1, 2].map(i => fly(640, 822 + i * 14, 840, 822 + i * 14, 0.8, `<rect class="tealfill" x="-22" y="-5" width="44" height="10" rx="3"/>`, 8.1 + i * 0.1)).join(''), 9.2) +
              // Serve: the result flows to its consumers
              [[1060, 776, 'bars'], [1060, 840, 'API'], [1060, 904, 'AI']].map(([x, y, k], i) => {
                const d = `M984 840 C1010 840 1014 ${y} ${x - 26} ${y}`;

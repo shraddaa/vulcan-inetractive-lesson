@@ -529,7 +529,7 @@ select.ctl { appearance: none; padding-right: 10px; }
         'Welcome to DataOS. This lesson is about Vulcan, the tool you use in DataOS to build data products.',
         'By the end, you will be able to explain how Vulcan builds a data product: transforming the data, checking it, describing it and serving it, and why each part matters.',
         'We will learn it all through one example: Bean Street, a small coffee chain with three shops in Lisbon, named Harbor, Market and Station.',
-        'There are eighteen short chapters, in five parts: foundations, building models, safe changes, the semantic layer, and access, AI and daily work.',
+        'There are eighteen short chapters, in five parts: foundations, building models, safe changes, the semantic layer, and putting it to work.',
         'After each chapter, a few quick questions check your understanding. And each chapter ends with a one line summary you can repeat to your team.',
         "Use the progress bar to jump to any chapter, turn captions on or off, switch to light or dark, or present it full screen. Let's begin."
       ],
@@ -562,7 +562,7 @@ select.ctl { appearance: none; padding-right: 10px; }
                   k === 'API' ? R(x - 22, y - 12, 44, 24, 'il t', 6) + T(x, y + 5, 'API', 'mono tealt') : sparkle(x, y)));
              }).join('')),
         U(2, 2, shop(250, 1010, 'Harbor') + shop(534, 1010, 'Market') + shop(818, 1010, 'Station')),
-        U(3, 3, [['Foundations', 'chapters 1 to 5'], ['Building models', 'chapters 6 to 8'], ['Safe changes', 'chapters 9 to 11'], ['The semantic layer', 'chapters 12 to 14'], ['Access, AI, daily work', 'chapters 15 to 18']].map(([t, c], i) =>
+        U(3, 3, [['Foundations', 'chapters 1 to 5'], ['Building models', 'chapters 6 to 8'], ['Safe changes', 'chapters 9 to 11'], ['The semantic layer', 'chapters 12 to 14'], ['Putting it to work', 'chapters 15 to 18']].map(([t, c], i) =>
                pop(0.2 + i * 0.25, R(60 + i * 236, 1350, 220, 150, 'il fillp', 14) + T(60 + i * 236 + 20, 1386, `PART ${i + 1}`, 'mono tealt', 'start') +
                  T(60 + i * 236 + 20, 1424, t, 'ttl', 'start') + T(60 + i * 236 + 20, 1456, c, 'sm dim', 'start'))).join('')),
         // A sample question gets answered, then a sample summary card fills in, line by line

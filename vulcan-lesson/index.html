@@ -1,0 +1,2015 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vulcan Complete Lesson</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+/* Layout: a slate "screen" player (animated SVG + quiz panels) over a light page. Part 2 of the Vulcan series. */
+:root {
+  --bg: #F3F2EF;
+  --surface: #FFFFFF;
+  --ink: #242422;
+  --muted: #5E625F;
+  --line: #D8D3CD;
+  --accent: #00807F;
+  --hl: rgba(84, 222, 209, .22);
+
+  /* The player keeps one slate-and-teal look in both themes */
+  --stage-bg: #1C292F;
+  --stage-panel: #243740;
+  --stage-line: #3B525A;
+  --stage-ink: #E7EFED;
+  --stage-dim: #8BA5A8;
+  --stage-teal: #54DED1;
+  --stage-teal-soft: rgba(84, 222, 209, .13);
+  --stage-ember: #FF6B4F;
+  --stage-ember-soft: rgba(255, 107, 79, .14);
+  --stage-on-teal: #0E1E22;
+  --stage-night: #0b1013;
+  --stage-tank: #1f4a4a;
+
+  --font-display: "Bricolage Grotesque", "Hanken Grotesk", system-ui, sans-serif;
+  --font-body: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111618; --surface: #192124; --ink: #E8E6E2; --muted: #9AA4A3; --line: #2B3639;
+    --accent: #54DED1; --hl: rgba(84, 222, 209, .14); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111618; --surface: #192124; --ink: #E8E6E2; --muted: #9AA4A3; --line: #2B3639;
+  --accent: #54DED1; --hl: rgba(84, 222, 209, .14); color-scheme: dark;
+}
+
+:root[data-stage="light"] {
+  --stage-bg: #F6F4F0; --stage-panel: #FFFFFF; --stage-line: #CFC9C1; --stage-ink: #1F2A2E; --stage-dim: #5A6B6D;
+  --stage-teal: #00807F; --stage-teal-soft: rgba(0, 128, 127, .10); --stage-ember: #C4442D; --stage-ember-soft: rgba(196, 68, 45, .10);
+  --stage-on-teal: #FFFFFF; --stage-night: #7C9296; --stage-tank: #DCEFEC;
+}
+:root[data-stage="light"] .player { box-shadow: 0 0 0 1px var(--stage-line); }
+[hidden] { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+}
+.wrap { max-width: 1000px; margin: 0 auto; display: grid; gap: 28px; }
+
+header { display: grid; gap: 6px; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 5vw, 44px); line-height: 1.05; margin: 0; text-wrap: balance; }
+.lede { margin: 0; color: var(--muted); max-width: 62ch; }
+
+/* Player */
+.player { container-type: inline-size; background: var(--stage-bg); color: var(--stage-ink); border-radius: 14px; overflow: hidden; }
+.screen { position: relative; aspect-ratio: 16 / 9; }
+.screen.is-panel { aspect-ratio: auto; min-height: 56.25cqi; display: flex; }
+.stage { display: block; width: 100%; height: 100%; }
+
+.stage text { fill: var(--stage-ink); font-family: var(--font-body); font-size: 16px; }
+.stage .lbl { font-size: 15px; fill: var(--stage-dim); }
+.stage .sm { font-size: 13.5px; }
+.stage .dim { fill: var(--stage-dim); }
+.stage .mono { font-family: var(--font-mono); font-size: 13.5px; }
+.stage .code { font-family: var(--font-mono); font-size: 13px; white-space: pre; }
+.stage .ttl { font-family: var(--font-display); font-weight: 700; font-size: 19px; }
+.stage .big { font-family: var(--font-display); font-weight: 700; font-size: 36px; }
+.stage .xl2 { font-family: var(--font-display); font-weight: 700; font-size: 50px; }
+.stage .xl { font-family: var(--font-display); font-weight: 700; font-size: 60px; }
+.stage .warn { fill: var(--stage-ember); }
+.stage .tealt { fill: var(--stage-teal); }
+.stage .ontealt { fill: var(--stage-on-teal); font-weight: 600; }
+.stage .eyb { font-family: var(--font-mono); font-size: 14px; letter-spacing: .22em; fill: var(--stage-teal); }
+
+.stage .ln { fill: none; stroke: var(--stage-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.stage .ln.t { stroke: var(--stage-teal); }
+.stage .box { fill: var(--stage-panel); stroke: var(--stage-line); stroke-width: 1.4; }
+.stage .layer { fill: var(--stage-teal-soft); stroke: var(--stage-teal); stroke-width: 1.6; }
+.stage .tealfill { fill: var(--stage-teal); }
+.stage .cyl path, .stage .cyl ellipse { fill: var(--stage-panel); stroke: var(--stage-dim); stroke-width: 1.4; }
+.stage .arr { stroke: var(--stage-dim); stroke-width: 1.6; fill: none; }
+.stage .arr.t { stroke: var(--stage-teal); }
+.stage .arr.e { stroke: var(--stage-ember); }
+.stage .dash { stroke-dasharray: 6 6; }
+.stage .ahp { fill: var(--stage-dim); }
+.stage .ahp.t { fill: var(--stage-teal); }
+.stage .ahp.e { fill: var(--stage-ember); }
+.stage .chip { fill: none; stroke-width: 1.3; }
+.stage .chip.e { stroke: var(--stage-ember); }
+.stage .chip.t { stroke: var(--stage-teal); }
+.stage .chip.d { stroke: var(--stage-dim); }
+.stage .bar { fill: var(--stage-line); }
+.stage .cell { fill: var(--stage-teal); opacity: .45; }
+.stage .colhl { fill: var(--stage-teal-soft); stroke: var(--stage-teal); stroke-width: 1.6; }
+.stage .rowbad { fill: var(--stage-ember-soft); stroke: var(--stage-ember); stroke-width: 1.4; }
+.stage .codehl { fill: var(--stage-teal-soft); }
+.stage .rule { stroke: var(--stage-line); stroke-width: 1; }
+
+.stage [data-s] { opacity: 0; transform: translateY(10px); transition: opacity .55s ease, transform .55s ease; }
+.stage [data-s].on { opacity: 1; transform: none; }
+
+.start {
+  position: absolute; left: 50%; bottom: 14%; transform: translateX(-50%);
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--stage-teal); color: var(--stage-on-teal); border: 0; border-radius: 999px;
+  padding: 12px 22px 12px 18px; font: 600 16px var(--font-body); cursor: pointer;
+}
+.start svg { width: 18px; height: 18px; }
+
+/* Panels (questions, explain-back, results) */
+.panel { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 16px; padding: clamp(20px, 4cqi, 44px); }
+.panel h3 { font-family: var(--font-display); font-weight: 700; font-size: clamp(20px, 3.1cqi, 28px); line-height: 1.2; margin: 0; text-wrap: balance; outline: none; }
+.panel .tag { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--stage-teal); }
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.opt {
+  text-align: left; background: var(--stage-panel); color: var(--stage-ink);
+  border: 1.5px solid var(--stage-line); border-radius: 10px; padding: 12px 14px;
+  font: 500 15.5px/1.35 var(--font-body); cursor: pointer;
+}
+.opt code, .panel code { font-family: var(--font-mono); font-size: .92em; }
+.opt:hover:not(:disabled) { border-color: var(--stage-teal); }
+.opt:disabled { cursor: default; }
+.opt.right { border-color: var(--stage-teal); background: var(--stage-teal-soft); }
+.opt.wrong { border-color: var(--stage-ember); opacity: .75; }
+.opt.picked { border-color: var(--stage-dim); }
+.opt.sm { padding: 6px 12px; font-size: 14px; }
+.opt.sel { border-color: var(--stage-teal); background: var(--stage-teal-soft); }
+.cls { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 8px; }
+.crow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; background: var(--stage-panel); border: 1.5px solid transparent; border-radius: 10px; padding: 8px 10px 8px 14px; font-size: 15px; }
+.crow.good { border-color: var(--stage-teal); }
+.crow.bad { border-color: var(--stage-ember); }
+.crow .pair { display: flex; gap: 6px; }
+.fb { display: grid; gap: 4px; background: var(--stage-panel); border-radius: 10px; padding: 12px 14px; font-size: 15px; }
+.fb b { font-weight: 600; }
+.fb.ok b { color: var(--stage-teal); }
+.fb.no b { color: var(--stage-ember); }
+.fb.neutral b { color: var(--stage-dim); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { background: var(--stage-teal); color: var(--stage-on-teal); border: 0; border-radius: 8px; padding: 10px 16px; font: 600 15px var(--font-body); cursor: pointer; }
+.btn:disabled { opacity: .4; cursor: default; }
+.btn.ghost { background: transparent; color: var(--stage-ink); border: 1px solid var(--stage-line); font-weight: 500; }
+.btn.ghost:hover { border-color: var(--stage-teal); }
+.slots { display: flex; flex-wrap: wrap; gap: 8px; min-height: 44px; align-items: center; }
+.slot { display: inline-flex; align-items: center; gap: 8px; border: 1.5px dashed var(--stage-line); border-radius: 8px; padding: 8px 12px; font-size: 15px; color: var(--stage-dim); min-width: 110px; }
+.slot.filled { border-style: solid; color: var(--stage-ink); }
+.slot span { font-family: var(--font-mono); font-size: 12px; color: var(--stage-teal); }
+textarea {
+  width: 100%; box-sizing: border-box; min-height: 92px; resize: vertical;
+  background: var(--stage-panel); color: var(--stage-ink); border: 1.5px solid var(--stage-line); border-radius: 10px;
+  padding: 12px 14px; font: 15.5px/1.5 var(--font-body);
+}
+textarea:focus { border-color: var(--stage-teal); outline: none; }
+.model { background: var(--stage-teal-soft); border: 1px solid var(--stage-teal); border-radius: 10px; padding: 12px 14px; font-size: 15px; }
+.score { font-family: var(--font-display); font-weight: 700; font-size: clamp(36px, 7cqi, 56px); line-height: 1; color: var(--stage-teal); }
+.rlist { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.rlist li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; background: var(--stage-panel); border-radius: 10px; padding: 10px 14px; font-size: 15px; }
+.rlist .q { flex: 1 1 220px; min-width: 0; }
+.pill { font-family: var(--font-mono); font-size: 12px; border-radius: 999px; padding: 3px 10px; border: 1px solid; }
+.pill.ok { color: var(--stage-teal); border-color: var(--stage-teal); }
+.pill.no { color: var(--stage-ember); border-color: var(--stage-ember); }
+.linkbtn { background: none; border: 0; color: var(--stage-ink); text-decoration: underline; text-underline-offset: 3px; font: 500 14px var(--font-body); cursor: pointer; padding: 0; }
+.panel p { margin: 0; color: var(--stage-dim); font-size: 15px; }
+
+/* Captions + controls */
+.caption { min-height: 3.1em; padding: 12px clamp(14px, 2.4cqi, 24px); font-size: clamp(15px, 2.1cqi, 19px); line-height: 1.45; border-top: 1px solid var(--stage-line); }
+.caption.off { display: none; }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; padding: 10px 14px; border-top: 1px solid var(--stage-line); }
+.chapters { flex: 1 1 100%; order: -1; display: flex; align-items: center; gap: 2px; height: 22px; min-width: 0; }
+.seg { position: relative; height: 8px; flex-basis: 0; min-width: 18px; margin-left: 6px; background: var(--stage-line); border: 0; padding: 0; border-radius: 3px; overflow: hidden; cursor: pointer; }
+.seg i { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--stage-teal); transition: width .4s ease; }
+.seg:hover { background: var(--stage-dim); }
+.seg:first-child { margin-left: 0; }
+.qmark { flex: none; width: 6px; height: 6px; margin: 0 1px; border-radius: 50%; background: var(--stage-line); border: 0; padding: 0; cursor: pointer; }
+.qmark:hover { background: var(--stage-dim); }
+.qmark.done { background: var(--stage-teal); }
+.qmark.now { background: var(--stage-teal); outline: 2px solid var(--stage-teal); outline-offset: 2px; }
+.ctl {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  background: transparent; color: var(--stage-ink); border: 1px solid var(--stage-line); border-radius: 8px;
+  padding: 6px 10px; font: 500 13px var(--font-body); cursor: pointer; min-height: 34px;
+}
+.ctl:hover:not(:disabled) { border-color: var(--stage-teal); }
+.ctl:disabled { opacity: .4; cursor: default; }
+.ctl[aria-pressed="false"] { color: var(--stage-dim); text-decoration: line-through; }
+.ctl svg { width: 16px; height: 16px; }
+#playBtn { width: 40px; padding: 0; }
+select.ctl { appearance: none; padding-right: 10px; }
+.player :focus-visible, .wrap :focus-visible { outline: 2px solid var(--stage-teal); outline-offset: 2px; }
+
+@media (max-width: 520px) { .stage text { font-size: 18px; } }
+.stage .il { fill: none; stroke: var(--stage-ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.stage .il.t { stroke: var(--stage-teal); }
+.stage .il.e { stroke: var(--stage-ember); }
+.stage .il.d { stroke: var(--stage-dim); }
+.stage .il.thick { stroke-width: 6; }
+.stage .il.thickish { stroke-width: 3.5; }
+.stage .il.fillp, .stage .fillp { fill: var(--stage-panel); }
+.stage .il.fillt { fill: var(--stage-teal-soft); }
+.stage .win { fill: var(--stage-teal-soft); stroke: var(--stage-teal); stroke-width: 1.6; }
+.stage .winoff { fill: var(--stage-bg); stroke: var(--stage-dim); stroke-width: 1.6; }
+.stage .key { fill: var(--stage-line); }
+.stage .dot { fill: var(--stage-teal); }
+.stage .dot.e { fill: var(--stage-ember); }
+.stage .badrow { fill: var(--stage-ember-soft); stroke: var(--stage-ember); stroke-width: 1.6; }
+.stage .chipf, .stage .bubble { fill: var(--stage-panel); stroke: var(--stage-teal); stroke-width: 1.4; }
+.stage .veil { fill: var(--stage-bg); opacity: .8; }
+.stage .night { fill: var(--stage-night); opacity: .55; }
+.stage .badge { fill: var(--stage-teal); }
+.stage .tank path, .stage .tank ellipse { fill: var(--stage-panel); stroke: var(--stage-dim); stroke-width: 1.6; }
+.stage .tank.t path, .stage .tank.t ellipse { fill: var(--stage-tank); stroke: var(--stage-teal); }
+.stage .solid { fill: var(--stage-bg); }
+.stage .logomark { fill: var(--stage-teal); }
+.stage .logoword { fill: var(--stage-ink); }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand svg { height: 22px; width: auto; color: var(--ink); }
+.stage .tagbg { fill: var(--stage-bg); stroke: var(--stage-line); stroke-width: 1.2; }
+.stage .recapbg { fill: var(--stage-bg); stroke: var(--stage-teal); stroke-width: 1.6; }
+.stage .rtext { font-family: var(--font-display); font-weight: 600; font-size: 23px; }
+.stage .emberfill { fill: var(--stage-ember); }
+.stage .emberfill2 { fill: var(--stage-ember); opacity: .55; }
+.stage .tealfill2 { fill: var(--stage-teal); opacity: .55; }
+.stage .tealsoft { fill: var(--stage-teal-soft); }
+.stage .colhlsoft { fill: var(--stage-teal-soft); stroke: var(--stage-teal); stroke-width: 1.4; stroke-dasharray: 5 4; }
+.stage .dimrow { opacity: .55; }
+.stage .tagfade.on { animation: fadeout .8s ease 4s both; }
+.stage .grow { transform: scaleX(0); transform-box: fill-box; transform-origin: left center; transition: transform 1.1s ease; }
+.stage .on .grow { transform: none; }
+.stage .on .soon { animation: fadeout .4s ease both; animation-delay: inherit; }
+.stage .on .later { animation: fadein .5s ease both; }
+.stage .on .fadeaway { animation: fadeaway .7s ease 1.2s both; }
+@keyframes fadeout { to { opacity: 0; } }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeaway { to { opacity: .12; transform: translateX(24px); } }
+
+.stage .scan { fill: var(--stage-ember-soft); stroke: var(--stage-ember); stroke-width: 1.4; }
+.stage .growy { transform: scaleY(0); transform-box: fill-box; transform-origin: center bottom; transition: transform 1.4s ease; }
+.stage .on .growy { transform: none; }
+/* Presentation mode: the player fills the screen */
+/* Everything shares one centered column: the width of the 16:9 frame that fits above the caption and controls */
+.player.full { position: fixed; inset: 0; z-index: 100; border-radius: 0; display: flex; flex-direction: column; justify-content: center;
+  --frame-w: min(calc(100vw - 48px), calc((100vh - 190px) * 16 / 9)); }
+.player.full .screen { flex: 0 0 auto; width: var(--frame-w); height: calc(var(--frame-w) * 9 / 16); margin: 0 auto; aspect-ratio: auto; min-height: 0; }
+.player.full .screen.is-panel { overflow-y: auto; align-items: center; }
+.player.full .panel { max-width: 100%; width: 100%; margin: auto; box-sizing: border-box; padding-inline: clamp(24px, 4vw, 64px); }
+.player.full .caption, .player.full .controls { width: var(--frame-w); margin: 0 auto; box-sizing: border-box; padding-inline: 0; }
+.player.full .ctl { min-height: 42px; padding: 8px 14px; font-size: 15px; }
+.player.full .ctl svg { width: 19px; height: 19px; }
+.player.full #playBtn { width: 48px; }
+.player.full .chapters { height: 26px; }
+.player .panel h3:focus, .player .panel h3:focus-visible { outline: none; }
+.player.full .panel h3 { font-size: clamp(22px, 2.4vw, 38px); }
+.player.full .opt, .player.full .fb, .player.full .crow, .player.full .slot, .player.full .rlist li { font-size: clamp(16px, 1.3vw, 21px); }
+.player.full .caption { font-size: clamp(18px, 1.6vw, 28px); text-align: center; min-height: 2.6em; }
+.starts { position: absolute; left: 50%; bottom: 12%; transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; width: max-content; max-width: 92%; }
+.starts .start { position: static; transform: none; }
+.start.ghost { background: transparent; color: var(--stage-ink); border: 1.5px solid var(--stage-teal); }
+.stage .cam { transition: transform 1.6s cubic-bezier(.65, 0, .25, 1); }
+.stage .fly { transform: translate(var(--fx), var(--fy)); }
+.stage .on .fly { transform: none; transition-property: transform; transition-timing-function: cubic-bezier(.5, 0, .2, 1); transition-delay: .2s; }
+.stage .draw { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.4s ease .3s; }
+.stage .on .draw { stroke-dashoffset: 0; }
+.stage .il.dash.draw { stroke-dasharray: 1; }
+.stage .steam { animation: steam 2.4s ease-in-out infinite; transform-box: fill-box; }
+.stage .on .pop { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1) both; transform-box: fill-box; transform-origin: center; }
+.stage .on .fillin { animation: fillin .45s ease both; transform-box: fill-box; transform-origin: center; }
+.stage .pulse, .stage .pulsehl .codehl { animation: pulse 1.6s ease-in-out infinite; }
+.stage .on .fillin.pulse { animation: fillin .45s ease both, pulse 1.6s ease-in-out 1.5s infinite; }
+.stage .wait { stroke-dasharray: 6 6; animation: march 1s linear infinite; }
+@keyframes steam { 0% { opacity: 0; transform: translateY(4px); } 40% { opacity: .9; } 100% { opacity: 0; transform: translateY(-10px); } }
+@keyframes pop { from { opacity: 0; transform: scale(.3); } to { opacity: 1; transform: none; } }
+@keyframes fillin { from { opacity: 0; transform: scale(.5); } to { opacity: 1; transform: none; } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+@keyframes march { to { stroke-dashoffset: -12; } }
+@media (prefers-reduced-motion: reduce) {
+  .stage [data-s] { transition: none; transform: none; }
+  .seg i { transition: none; }
+}
+@media (prefers-reduced-motion: reduce) { .stage .cam, .stage .draw, .stage .on .fly { transition: none; } .stage .steam, .stage .pulse, .stage .wait, .stage .on .pop, .stage .on .fillin { animation: none; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="brand"><svg viewBox="0 0 164 32" role="img" aria-label="DataOS"><path d="M17.3446 2.14778C24.329 2.14275 29.9948 7.79515 29.9998 14.7717L17.3537 14.7808L17.3446 2.14778Z" fill="currentColor"/><path d="M29.981 17.0615C29.986 24.038 24.3283 29.6986 17.3439 29.7036L17.3348 17.0706L29.981 17.0615Z" fill="currentColor"/><path d="M8.66882 29.8556C4.99111 29.8582 2.00755 26.8816 2.00491 23.2065C2.00226 19.5314 4.98153 16.5504 8.65924 16.5478C12.3369 16.5451 15.3205 19.5218 15.3231 23.1969C15.3258 26.872 12.3465 29.8529 8.66882 29.8556Z" fill="currentColor"/><path d="M14.9822 14.7883L14.9731 2.15527L2.327 2.16438L2.3361 14.7974L14.9822 14.7883Z" fill="currentColor"/><path d="M46.9692 25.581C52.665 25.581 55.7259 21.9081 55.7259 16.106C55.7259 10.3039 52.665 6.60435 46.9692 6.60435H42.6041V25.581H46.9692ZM37.9995 2.53223H47.1555C55.1669 2.53223 60.3305 7.85527 60.3305 16.106C60.3305 24.3833 55.1669 29.6797 47.1555 29.6797H37.9995V2.53223Z" fill="currentColor"/><path d="M73.7974 22.7072C73.3183 21.4563 71.535 20.7111 69.7783 20.7111C67.7821 20.7111 65.7061 21.5628 65.7061 23.5057C65.7061 25.4486 67.7821 26.3269 69.7783 26.3269C71.535 26.3269 73.3183 25.5817 73.7974 24.3308V22.7072ZM73.7974 29.574V28.4561C73.132 29.1215 71.1358 29.92 68.9266 29.92C64.9076 29.92 61.5806 27.5246 61.5806 23.5057C61.5806 19.7796 64.9076 17.1713 69.246 17.1713C71.0027 17.1713 72.9989 17.7834 73.7974 18.369V16.7721C73.7974 14.7759 72.5464 13.2322 70.0445 13.2322C68.2878 13.2322 67.17 13.9775 66.6909 15.3614H62.4323C63.0178 12.0079 66.1053 9.47949 70.1243 9.47949C75.075 9.47949 78.0027 12.2209 78.0027 16.6922V29.574H73.7974Z" fill="currentColor"/><path d="M82.3682 13.6048H79.2808V9.93192H82.3682V4.66211H86.7865V9.93192H91.2048V13.6048H86.7865V23.7718C86.7865 25.3687 87.6648 26.0607 89.1287 26.0607C90.0071 26.0607 91.0451 25.7147 91.6573 25.2623V29.2812C90.912 29.7336 89.7143 29.9998 88.3303 29.9998C84.8435 29.9998 82.3682 28.1367 82.3682 24.2509V13.6048Z" fill="currentColor"/><path d="M105.524 22.7072C105.045 21.4563 103.262 20.7111 101.505 20.7111C99.5087 20.7111 97.4326 21.5628 97.4326 23.5057C97.4326 25.4486 99.5087 26.3269 101.505 26.3269C103.262 26.3269 105.045 25.5817 105.524 24.3308V22.7072ZM105.524 29.574V28.4561C104.859 29.1215 102.862 29.92 100.653 29.92C96.6341 29.92 93.3071 27.5246 93.3071 23.5057C93.3071 19.7796 96.6342 17.1713 100.973 17.1713C102.729 17.1713 104.725 17.7834 105.524 18.369V16.7721C105.524 14.7759 104.273 13.2322 101.771 13.2322C100.014 13.2322 98.8965 13.9775 98.4174 15.3614H94.1588C94.7444 12.0079 97.8319 9.47949 101.851 9.47949C106.802 9.47949 109.729 12.2209 109.729 16.6922V29.574H105.524Z" fill="currentColor"/><path d="M124.421 4.12897C118.672 4.12897 114.733 8.99955 114.733 15.9993C114.733 22.9991 118.672 27.8697 124.421 27.8697C130.17 27.8697 134.162 22.9991 134.162 15.9993C134.136 8.99955 130.197 4.12897 124.421 4.12897ZM124.421 29.9723C117.527 29.9723 112.417 24.3033 112.417 15.9993C112.417 7.6954 117.501 2.02637 124.421 2.02637C131.341 2.02637 136.451 7.66879 136.451 15.9727C136.451 24.2767 131.368 29.9723 124.421 29.9723Z" fill="currentColor"/><path d="M140.071 22.9195C141.189 26.1932 144.064 27.9232 147.764 27.9232C151.463 27.9232 154.524 25.9271 154.524 22.4671C154.524 20.0717 153.273 18.395 149.84 17.4368L144.649 15.973C140.843 14.9084 138.421 13.1784 138.421 9.34579C138.421 4.74137 142.307 2 146.992 2C152.315 2 155.482 4.7946 156.547 8.81349H154.284C153.273 5.93905 150.931 4.02276 146.992 4.02276C143.452 4.02276 140.577 5.88582 140.577 9.1861C140.577 12.0605 142.44 13.0719 145.767 14.0035L150.319 15.3342C154.79 16.5851 156.733 18.7942 156.733 22.3606C156.733 27.1514 152.847 29.9193 147.737 29.9193C142.653 29.9193 138.741 27.3909 137.703 22.8929L140.071 22.9195Z" fill="currentColor"/><path d="M159.608 6.20599H159.075V6.84476H159.581C159.821 6.84476 159.954 6.71168 159.954 6.52537C159.954 6.36568 159.821 6.23261 159.608 6.20599ZM159.075 7.19075V8.01583H158.703V5.88661H159.555C160.007 5.88661 160.3 6.12615 160.3 6.55199C160.3 6.89799 160.087 7.11091 159.794 7.19075L160.38 8.04244H159.954L159.395 7.21737H159.075V7.19075ZM159.475 5.24784C158.543 5.24784 157.771 5.96646 157.771 6.95122C157.771 7.93598 158.543 8.68121 159.475 8.68121C160.406 8.68121 161.178 7.96259 161.178 6.95122C161.152 5.96646 160.406 5.24784 159.475 5.24784ZM159.475 9.00059C158.383 9.00059 157.479 8.1489 157.479 6.97783C157.479 5.80676 158.383 4.95508 159.475 4.95508C160.566 4.95508 161.471 5.80676 161.471 6.97783C161.471 8.1489 160.566 9.00059 159.475 9.00059Z" fill="currentColor"/></svg><span class="eyebrow">Vulcan interactive lesson</span></span>
+    <h1 class="sr-only">Vulcan, from start to finish</h1>  </header>
+
+  <section class="player" aria-label="Interactive explainer">
+    <div class="screen" id="screen">
+      <svg class="stage" id="stage" viewBox="0 0 960 540" role="img" aria-label="Animated diagram for the current chapter">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahp" d="M0 0L10 5L0 10z"/></marker>
+          <marker id="ah-t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahp t" d="M0 0L10 5L0 10z"/></marker>
+          <marker id="ah-e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahp e" d="M0 0L10 5L0 10z"/></marker>
+        </defs>
+        <clipPath id="frame"><rect width="960" height="540"/></clipPath><g id="scenes" clip-path="url(#frame)"></g>
+      </svg>
+      <div class="starts" id="starts">
+        <button class="start" id="fsStartBtn" type="button">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          Present full screen
+        </button>
+        <button class="start ghost" id="startBtn" type="button">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 3l12 7-12 7z" fill="currentColor"/></svg>
+          Play here
+        </button>
+      </div>
+      <div class="panel" id="panel" hidden></div>
+    </div>
+    <div class="caption" id="caption" aria-live="polite">Press start and turn your sound on. Captions show here.</div>
+    <div class="controls">
+      <button class="ctl" id="playBtn" type="button" aria-label="Play"></button>
+      <div class="chapters" id="chapters" aria-label="Chapters and questions"></div>
+      <button class="ctl" id="voiceBtn" type="button" aria-pressed="true">Voice</button>
+      <button class="ctl" id="ccBtn" type="button" aria-pressed="true">CC</button>
+      <button class="ctl" id="themeBtn" type="button" aria-label="Switch to light theme" title="Light or dark theme"></button>
+      <select class="ctl" id="rate" aria-label="Narration speed">
+        <option value="0.9">0.9×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.15">1.15×</option>
+        <option value="1.3">1.3×</option>
+      </select>
+      <button class="ctl" id="fsBtn" type="button" aria-label="Full screen" title="Full screen (F)"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(() => {
+  // ---------- SVG helpers ----------
+  // Recorded narration lives at audio/<hash>.mp4 (made by make-voice.mjs)
+  const hashText = s => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0; return h.toString(36); };
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const T = (x, y, s, cls = '', anchor = 'middle') => `<text x="${x}" y="${y}" class="${cls}" text-anchor="${anchor}">${esc(s)}</text>`;
+  const G = (step, inner) => `<g data-s="${step}">${inner}</g>`;
+  const arrow = (x1, y1, x2, y2, kind = '') => {
+    const m = kind.includes('t') ? 'ah-t' : kind.includes('e') ? 'ah-e' : 'ah';
+    return `<line class="arr ${kind}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" marker-end="url(#${m})"/>`;
+  };
+  const cyl = (cx, cy, w, label) => {
+    const rx = w / 2, h = 46, top = cy - h / 2;
+    return `<g class="cyl"><path d="M${cx - rx} ${top} v${h} a${rx} 9 0 0 0 ${w} 0 v${-h}"/><ellipse cx="${cx}" cy="${top}" rx="${rx}" ry="9"/></g>${T(cx, cy + 12, label, 'mono')}`;
+  };
+  const node = (x, y, w, h, title, sub = [], cls = 'box', tcls = 'ttl') => {
+    const subs = [].concat(sub);
+    const cx = x + w / 2, top = y + h / 2 - (subs.length * 19) / 2 + 6;
+    return `<rect class="${cls}" x="${x}" y="${y}" width="${w}" height="${h}" rx="10"/>${T(cx, top, title, tcls)}` +
+      subs.map((s, i) => T(cx, top + 22 + i * 19, s, 'sm dim')).join('');
+  };
+  const chip = (x, y, w, s, kind) => `<rect class="chip ${kind}" x="${x}" y="${y}" width="${w}" height="26" rx="13"/>${T(x + w / 2, y + 17.5, s, 'mono ' + (kind === 'e' ? 'warn' : kind === 't' ? 'tealt' : ''))}`;
+  const code = (x, y, w, lines, hl = []) =>
+    `<rect class="box" x="${x}" y="${y}" width="${w}" height="${lines.length * 21 + 24}" rx="10"/>` +
+    hl.map(i => `<rect class="codehl" x="${x + 8}" y="${y + 13 + i * 21}" width="${w - 16}" height="21" rx="4"/>`).join('') +
+    lines.map((l, i) => `<text x="${x + 16}" y="${y + 28 + i * 21}" class="code">${esc(l)}</text>`).join('');
+  // A small data table: header row + body rows, fixed column width
+  const table = (x, y, cw, ch, head, rows) => {
+    const w = cw * head.length, h = ch * (rows.length + 1);
+    let s = `<rect class="box" x="${x}" y="${y}" width="${w}" height="${h}" rx="8"/>`;
+    for (let r = 1; r <= rows.length; r++) s += `<line class="rule" x1="${x}" y1="${y + r * ch}" x2="${x + w}" y2="${y + r * ch}"/>`;
+    head.forEach((c, i) => { s += T(x + i * cw + cw / 2, y + ch / 2 + 5, c, 'mono dim'); });
+    rows.forEach((row, r) => row.forEach((c, i) => { s += T(x + i * cw + cw / 2, y + (r + 1) * ch + ch / 2 + 5, c, 'mono'); }));
+    return s;
+  };
+  const card = (x, y, w, h, title, fields) =>
+    `<rect class="box" x="${x}" y="${y}" width="${w}" height="${h}" rx="12"/>` + T(x + 20, y + 30, title, 'ttl', 'start') +
+    fields.map((f, i) => T(x + 20, y + 62 + i * 26, f, 'mono dim', 'start')).join('');
+
+  // ---------- Illustration helpers ----------
+  // Each scene is a world of about 1280 x 720. A camera per narration line pans and zooms over it.
+  const U = (s, u, inner) => `<g data-s="${s}" data-u="${u}">${inner}</g>`;
+  const P = (d, cls = 'il') => `<path class="${cls}" d="${d}"/>`;
+  const R = (x, y, w, h, cls = 'il', rx = 8) => `<rect class="${cls}" x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}"/>`;
+  const draw = (d, cls = 'il t') => `<path class="${cls} draw" pathLength="1" d="${d}"/>`;
+  // Dots that loop along a path forever
+  const flowDots = (d, n, dur, cls = 'dot', r = 5) => Array.from({ length: n }, (_, i) =>
+    `<circle class="${cls}" r="${r}"><animateMotion dur="${dur}s" repeatCount="indefinite" begin="-${(i * dur / n).toFixed(2)}s" path="${d}"/></circle>`).join('');
+  // Something drawn around the origin that glides from (x0, y0) to (x1, y1) when its line is reached
+  const fly = (x0, y0, x1, y1, dur, inner, delay = 0.2) =>
+    `<g class="fly" style="--fx:${x0 - x1}px;--fy:${y0 - y1}px;transition-duration:${dur}s;transition-delay:${delay}s"><g transform="translate(${x1} ${y1})">${inner}</g></g>`;
+  const num = (x, y, to, cls, from = 0, dec = 0, anchor = 'middle') =>
+    `<text x="${x}" y="${y}" class="${cls}" text-anchor="${anchor}" data-count="${to}" data-from="${from}" data-dec="${dec}">${Number(from).toLocaleString('en-US', { minimumFractionDigits: dec })}</text>`;
+  const pop = (delay, inner) => `<g class="pop" style="animation-delay:${delay}s">${inner}</g>`;
+  // Timed swaps inside one line: "soon" fades out, "later" fades in
+  const soon = (inner, d = 1.4) => `<g class="soon" style="animation-delay:${d}s">${inner}</g>`;
+  const later = (inner, d = 1.6) => `<g class="later" style="animation-delay:${d}s">${inner}</g>`;
+  const grow = (x, y, w, h, cls, delay = 0.3) => `<rect class="${cls} grow" style="transition-delay:${delay}s" x="${x}" y="${y}" width="${w}" height="${h}" rx="4"/>`;
+  const flow = (y, w, gap, items, h = 50, x0 = 60) => items.map(([t, s, cls = 'box'], i) => {
+    const x = x0 + i * (w + gap);
+    const box = cls === 'tealfill'
+      ? `<rect class="tealfill" x="${x}" y="${y}" width="${w}" height="${h}" rx="10"/>` + T(x + w / 2, y + h / 2 + 6, t, 'ontealt')
+      : node(x, y, w, h, t, s ? [s] : [], cls, s ? 'ttl' : '');
+    return box + (i < items.length - 1 ? arrow(x + w + 4, y + h / 2, x + w + gap - 4, y + h / 2) : '');
+  }).join('');
+  const dayBoxes = (x, y, labels, fill = () => false, w = 100, step = 116, h = 84, d0 = 0.3) => labels.map((d, i) =>
+    R(x + i * step, y, w, h, 'il fillp', 10) +
+    (fill(i) ? `<rect class="tealfill fillin" style="animation-delay:${d0 + i * 0.2}s" x="${x + i * step + 4}" y="${y + 4}" width="${w - 8}" height="${h - 8}" rx="8"/>` : '') +
+    T(x + i * step + w / 2, y + h / 2 + 5, d, 'sm' + (fill(i) ? ' ontealt' : ''))).join('');
+
+  const cup = (x, y) => `<g transform="translate(${x} ${y})">${P('M0 0 h26 l-3 22 h-20 z')}${P('M26 5 q9 2 0 11')}` +
+    [5, 13, 21].map((v, i) => `<path class="il d steam" style="animation-delay:${i * .7}s" d="M${v} -5 q-4 -6 0 -12 q4 -6 0 -12"/>`).join('') + '</g>';
+  const croissant = (x, y) => `<g transform="translate(${x} ${y})"><circle class="il" cx="16" cy="10" r="12"/><circle class="il" cx="16" cy="10" r="4"/>${P('M8 3 l2 2 M22 2 l-1 3 M26 12 l-3 1 M9 17 l2 -2 M19 18 l1 -2', 'il t')}</g>`;
+  const cake = (x, y) => `<g transform="translate(${x} ${y})">${P('M0 22 h30 v-12 l-30 -8 z')}${P('M0 14 h30', 'il d')}<circle class="il t" cx="22" cy="0" r="3"/></g>`;
+  const SHOPS = { Harbor: ['S1', cup], Market: ['S2', croissant], Station: ['S3', cake] };
+  const shop = (x, y, name) => `<g transform="translate(${x} ${y})">
+    ${R(0, 60, 200, 140, 'il fillp', 2)}
+    <path class="il t fillt" d="M-12 60 L4 18 H196 L212 60 Z"/>
+    ${[40, 80, 120, 160].map(v => `<line class="il t" x1="${v}" y1="18" x2="${v + (v - 100) * 0.16}" y2="60"/>`).join('')}
+    ${P(`M-12 60 ${'q14 16 28 0 '.repeat(8)}`, 'il t')}
+    ${R(20, 92, 90, 66, 'win', 4)}${(SHOPS[name] || ['', cup])[1](SHOPS[name] && name !== 'Harbor' ? 50 : 52, 128)}
+    ${R(130, 104, 50, 96, 'il fillp', 3)}<circle class="dot" cx="171" cy="152" r="3"/>${SHOPS[name] ? T(155, 128, SHOPS[name][0], 'mono dim') : ''}
+    ${T(100, -16, 'BEAN STREET', 'mono tealt')}${T(100, 8, name, 'ttl')}</g>`;
+  const closed = (x, y) => R(x + 20, y + 92, 90, 66, 'winoff', 4) + T(x + 65, y + 130, 'CLOSED', 'mono dim');
+  const register = (x, y, disp, cls = '') => `<g transform="translate(${x} ${y})">
+    ${R(40, 0, 120, 44, 'il fillp', 6)}${T(100, 29, disp, 'mono ' + cls)}<line class="il" x1="100" y1="44" x2="100" y2="52"/>
+    ${R(0, 52, 200, 90, 'il fillp', 8)}
+    ${[0, 1, 2].map(j => [0, 1, 2, 3].map(i => R(20 + i * 28, 66 + j * 20, 18, 12, 'key', 3)).join('')).join('')}
+    ${R(140, 66, 42, 52, 'il d', 4)}</g>`;
+  const tank = (cx, cy, w, h, label, sub, cls = '') => {
+    const rx = w / 2, top = cy - h / 2;
+    return `<g class="tank ${cls}"><path d="M${cx - rx} ${top} v${h} a${rx} 14 0 0 0 ${w} 0 v${-h}"/><ellipse cx="${cx}" cy="${top}" rx="${rx}" ry="14"/></g>` +
+      T(cx, cy + 6, label, 'ttl') + T(cx, cy + 30, sub, 'sm dim');
+  };
+  const shield = (x, y, k) => `<path class="il ${k} fillp" d="M${x} ${y - 20} l18 6 v12 q0 16 -18 24 q-18 -8 -18 -24 v-12 z"/>` +
+    (k === 't' ? P(`M${x - 7} ${y + 2} l5 5 l9 -10`, 'il t') : P(`M${x - 6} ${y - 4} l12 12 M${x + 6} ${y - 4} l-12 12`, 'il e'));
+  const gate = (x, y, open) => open
+    ? `<line class="il t" x1="${x}" y1="${y - 54}" x2="${x}" y2="${y - 22}"/><line class="il t" x1="${x}" y1="${y + 22}" x2="${x}" y2="${y + 54}"/>` + shield(x, y - 84, 't')
+    : `<line class="il e thick" x1="${x}" y1="${y - 54}" x2="${x}" y2="${y + 54}"/>` + shield(x, y - 84, 'e');
+  const screenBox = (x, y, w, h, title) => R(x, y, w, h, 'il fillp', 10) +
+    `<line class="il" x1="${x + w / 2}" y1="${y + h}" x2="${x + w / 2}" y2="${y + h + 14}"/><line class="il" x1="${x + w / 2 - 30}" y1="${y + h + 14}" x2="${x + w / 2 + 30}" y2="${y + h + 14}"/>` +
+    T(x + 16, y + 28, title, 'sm dim', 'start') +
+    [22, 34, 28, 44, 38].map((bh, i) => `<rect class="bar" x="${x + 16 + i * 16}" y="${y + h - 16 - bh}" width="11" height="${bh}" rx="2"/>`).join('');
+  const person = (x, y, name = '') => `<circle class="il fillp" cx="${x}" cy="${y - 46}" r="17"/>` + P(`M${x - 30} ${y + 8} q0 -34 30 -34 q30 0 30 34`, 'il fillp') +
+    (name ? T(x, y + 32, name, 'sm') : '');
+  const phone = (x, y) => R(x, y, 56, 96, 'il fillp', 10) + `<line class="il d" x1="${x + 20}" y1="${y + 86}" x2="${x + 36}" y2="${y + 86}"/>` +
+    `<circle class="dot e pulse" cx="${x + 46}" cy="${y + 12}" r="6"/>`;
+  const bubble = (x, y, w, lines, cls = '', d = 0.2) => pop(d, R(x, y, w, 24 + lines.length * 22, 'bubble', 12) +
+    lines.map((l, i) => T(x + 16, y + 30 + i * 22, l, i === 0 ? 'sm ' + cls : 'sm dim', 'start')).join(''));
+  const mcard = (x, y, name, cls = '') => R(x, y, 170, 54, 'il fillp ' + cls, 10) +
+    [0, 1, 2].map(i => `<line class="il d" x1="${x + 16}" y1="${y + 18 + i * 9}" x2="${x + 34}" y2="${y + 18 + i * 9}"/>`).join('') + T(x + 100, y + 33, name, 'mono');
+  const badge = (x, y, n, delay) => pop(delay, `<circle class="badge" cx="${x}" cy="${y}" r="14"/>` + T(x, y + 5, String(n), 'sm ontealt'));
+  const clock = (x, y, spin = true) => `<circle class="il fillp" cx="${x}" cy="${y}" r="34"/>` + (spin
+    ? `<line class="il" x1="${x}" y1="${y}" x2="${x}" y2="${y - 18}"><animateTransform attributeName="transform" type="rotate" from="0 ${x} ${y}" to="360 ${x} ${y}" dur="9s" repeatCount="indefinite"/></line>` +
+      `<line class="il t" x1="${x}" y1="${y}" x2="${x + 24}" y2="${y}"><animateTransform attributeName="transform" type="rotate" from="0 ${x} ${y}" to="360 ${x} ${y}" dur="1.2s" repeatCount="indefinite"/></line>`
+    : `<line class="il" x1="${x}" y1="${y}" x2="${x + 8}" y2="${y + 14}"/><line class="il t" x1="${x}" y1="${y}" x2="${x}" y2="${y + 24}"/>`);
+  const veil = (x, y, w, h) => R(x, y, w, h, 'veil', 10);
+  const iconCircle = (cx, cy, label, inner) => `<circle class="il t fillp" cx="${cx}" cy="${cy}" r="40"/>${inner}` + T(cx, cy + 70, label, 'sm');
+  const fileIcon = (x, y, k = 'il d') => P(`M${x} ${y} h14 l6 6 v20 h-20 z M${x + 14} ${y} v6 h6`, k);
+  const folderIcon = (x, y, k = 'il t') => P(`M${x} ${y + 4} h10 l4 4 h14 v20 h-28 z`, k);
+  const tag = (x, y, k = 'il t') => P(`M${x - 14} ${y - 12} h16 l12 12 l-12 12 h-16 z`, k) + `<circle class="${k}" cx="${x - 7}" cy="${y}" r="2"/>`;
+  const sparkle = (x, y, k = 'il t') => P(`M${x} ${y - 14} l4 10 l10 4 l-10 4 l-4 10 l-4 -10 l-10 -4 l10 -4 z`, k);
+  const gear = (x, y) => `<circle class="il t" cx="${x}" cy="${y}" r="9"/>` +
+    [0, 45, 90, 135, 180, 225, 270, 315].map(a => { const r = a * Math.PI / 180; return `<line class="il t" x1="${(x + 12 * Math.cos(r)).toFixed(1)}" y1="${(y + 12 * Math.sin(r)).toFixed(1)}" x2="${(x + 17 * Math.cos(r)).toFixed(1)}" y2="${(y + 17 * Math.sin(r)).toFixed(1)}"/>`; }).join('');
+  const lockIcon = (x, y, k = 'il t') => R(x - 12, y - 4, 24, 20, k, 4) + P(`M${x - 7} ${y - 4} v-6 a7 7 0 0 1 14 0 v6`, k);
+  // ---------- Icons for the later chapters ----------
+  const env = (k = 'il t') => R(-16, -11, 32, 22, k + ' fillp', 3) + P('M-16 -11 l16 12 l16 -12', k);
+  const lens = (x, y, k = 'il t') => `<circle class="${k}" cx="${x - 4}" cy="${y - 4}" r="10"/>` + P(`M${x + 3} ${y + 3} l9 9`, k);
+  const flask = (x, y, k = 'il t') => P(`M${x - 6} ${y - 14} v10 l-10 17 q-2 4 3 4 h26 q5 0 3 -4 l-10 -17 v-10 M${x - 9} ${y - 14} h18 M${x - 11} ${y + 9} h22`, k);
+  const trend = (x, y, k = 'il t') => P(`M${x - 14} ${y + 8} l8 -8 l7 5 l13 -15`, k);
+  const spin = (x, y, inner, dur = 4) => `<g>${inner}<animateTransform attributeName="transform" type="rotate" from="0 ${x} ${y}" to="360 ${x} ${y}" dur="${dur}s" repeatCount="indefinite"/></g>`;
+  const medal = (x, y, t) => `<circle class="il t fillt" cx="${x}" cy="${y}" r="11"/>` + T(x, y + 4.5, t, 'mono tealt');
+  const laptop = (x, y) => R(x, y, 70, 46, 'il fillp', 5) + P(`M${x - 10} ${y + 52} h90 l-6 -6 h-78 z`) +
+    [0, 1, 2].map(i => `<line class="il t" x1="${x + 10}" y1="${y + 12 + i * 10}" x2="${x + 44 - i * 8}" y2="${y + 12 + i * 10}"/>`).join('');
+  const dashIcon = (x, y) => R(x, y, 80, 56, 'il fillp', 6) + [16, 26, 20, 34].map((h, i) => `<rect class="tealfill" x="${x + 12 + i * 16}" y="${y + 46 - h}" width="10" height="${h}" rx="2"/>`).join('');
+  // A table of text rows where each row can carry its own class (for rows that fade or change)
+  const rowsTable = (x, y, cw, ch, head, rows) => {
+    const w = cw * head.length;
+    return R(x, y, w, ch * (rows.length + 1), 'box', 8) +
+      head.map((c, i) => T(x + i * cw + cw / 2, y + ch / 2 + 5, c, 'mono dim')).join('') +
+      rows.map(([cls, cells], r) => `<g class="${cls}">` + (r >= 0 ? `<line class="rule" x1="${x}" y1="${y + (r + 1) * ch}" x2="${x + w}" y2="${y + (r + 1) * ch}"/>` : '') +
+        cells.map((c, i) => typeof c === 'string' ? T(x + i * cw + cw / 2, y + (r + 1) * ch + ch / 2 + 5, c, 'mono') : c(x + i * cw + cw / 2, y + (r + 1) * ch + ch / 2 + 5)).join('') + '</g>').join('');
+  };
+  const wrap = (s, n) => s.split(' ').reduce((a, w) => {
+    const last = a[a.length - 1];
+    if (last && (last + ' ' + w).length <= n) a[a.length - 1] = last + ' ' + w; else a.push(w);
+    return a;
+  }, []);
+  // Fixed overlays (outside the camera): a chapter tag on the first line and the "in short" card on the last
+  const chapterTag = (i, n, title) => {
+    const lbl = `${i + 1} of ${n}`, tx = 44 + lbl.length * 8.2 + 14;
+    return `<g data-s="0" data-u="0" class="tagfade">${R(24, 20, tx - 24 + title.length * 7.6 + 22, 40, 'tagbg', 20)}` +
+      T(44, 46, lbl, 'mono tealt', 'start') + T(tx, 46, title, 'sm', 'start') + '</g>';
+  };
+  const recapCard = (l, text) => {
+    const ls = wrap(text, 60), h = 58 + ls.length * 30, y = 540 - 18 - h;
+    return `<g data-s="${l}">${R(0, 0, 960, 540, 'veil', 0)}${R(40, y, 880, h, 'recapbg', 16)}` + T(68, y + 32, 'IN SHORT', 'eyb', 'start') +
+      ls.map((t, i) => T(68, y + 66 + i * 30, t, 'rtext', 'start')).join('') + '</g>';
+  };
+
+  // DataOS logo (from the official DataOSIcon.svg): four-piece mark, then the wordmark
+  const LOGO_MARK = ["M17.3446 2.14778C24.329 2.14275 29.9948 7.79515 29.9998 14.7717L17.3537 14.7808L17.3446 2.14778Z", "M29.981 17.0615C29.986 24.038 24.3283 29.6986 17.3439 29.7036L17.3348 17.0706L29.981 17.0615Z", "M8.66882 29.8556C4.99111 29.8582 2.00755 26.8816 2.00491 23.2065C2.00226 19.5314 4.98153 16.5504 8.65924 16.5478C12.3369 16.5451 15.3205 19.5218 15.3231 23.1969C15.3258 26.872 12.3465 29.8529 8.66882 29.8556Z", "M14.9822 14.7883L14.9731 2.15527L2.327 2.16438L2.3361 14.7974L14.9822 14.7883Z"];
+  const LOGO_WORD = ["M46.9692 25.581C52.665 25.581 55.7259 21.9081 55.7259 16.106C55.7259 10.3039 52.665 6.60435 46.9692 6.60435H42.6041V25.581H46.9692ZM37.9995 2.53223H47.1555C55.1669 2.53223 60.3305 7.85527 60.3305 16.106C60.3305 24.3833 55.1669 29.6797 47.1555 29.6797H37.9995V2.53223Z", "M73.7974 22.7072C73.3183 21.4563 71.535 20.7111 69.7783 20.7111C67.7821 20.7111 65.7061 21.5628 65.7061 23.5057C65.7061 25.4486 67.7821 26.3269 69.7783 26.3269C71.535 26.3269 73.3183 25.5817 73.7974 24.3308V22.7072ZM73.7974 29.574V28.4561C73.132 29.1215 71.1358 29.92 68.9266 29.92C64.9076 29.92 61.5806 27.5246 61.5806 23.5057C61.5806 19.7796 64.9076 17.1713 69.246 17.1713C71.0027 17.1713 72.9989 17.7834 73.7974 18.369V16.7721C73.7974 14.7759 72.5464 13.2322 70.0445 13.2322C68.2878 13.2322 67.17 13.9775 66.6909 15.3614H62.4323C63.0178 12.0079 66.1053 9.47949 70.1243 9.47949C75.075 9.47949 78.0027 12.2209 78.0027 16.6922V29.574H73.7974Z", "M82.3682 13.6048H79.2808V9.93192H82.3682V4.66211H86.7865V9.93192H91.2048V13.6048H86.7865V23.7718C86.7865 25.3687 87.6648 26.0607 89.1287 26.0607C90.0071 26.0607 91.0451 25.7147 91.6573 25.2623V29.2812C90.912 29.7336 89.7143 29.9998 88.3303 29.9998C84.8435 29.9998 82.3682 28.1367 82.3682 24.2509V13.6048Z", "M105.524 22.7072C105.045 21.4563 103.262 20.7111 101.505 20.7111C99.5087 20.7111 97.4326 21.5628 97.4326 23.5057C97.4326 25.4486 99.5087 26.3269 101.505 26.3269C103.262 26.3269 105.045 25.5817 105.524 24.3308V22.7072ZM105.524 29.574V28.4561C104.859 29.1215 102.862 29.92 100.653 29.92C96.6341 29.92 93.3071 27.5246 93.3071 23.5057C93.3071 19.7796 96.6342 17.1713 100.973 17.1713C102.729 17.1713 104.725 17.7834 105.524 18.369V16.7721C105.524 14.7759 104.273 13.2322 101.771 13.2322C100.014 13.2322 98.8965 13.9775 98.4174 15.3614H94.1588C94.7444 12.0079 97.8319 9.47949 101.851 9.47949C106.802 9.47949 109.729 12.2209 109.729 16.6922V29.574H105.524Z", "M124.421 4.12897C118.672 4.12897 114.733 8.99955 114.733 15.9993C114.733 22.9991 118.672 27.8697 124.421 27.8697C130.17 27.8697 134.162 22.9991 134.162 15.9993C134.136 8.99955 130.197 4.12897 124.421 4.12897ZM124.421 29.9723C117.527 29.9723 112.417 24.3033 112.417 15.9993C112.417 7.6954 117.501 2.02637 124.421 2.02637C131.341 2.02637 136.451 7.66879 136.451 15.9727C136.451 24.2767 131.368 29.9723 124.421 29.9723Z", "M140.071 22.9195C141.189 26.1932 144.064 27.9232 147.764 27.9232C151.463 27.9232 154.524 25.9271 154.524 22.4671C154.524 20.0717 153.273 18.395 149.84 17.4368L144.649 15.973C140.843 14.9084 138.421 13.1784 138.421 9.34579C138.421 4.74137 142.307 2 146.992 2C152.315 2 155.482 4.7946 156.547 8.81349H154.284C153.273 5.93905 150.931 4.02276 146.992 4.02276C143.452 4.02276 140.577 5.88582 140.577 9.1861C140.577 12.0605 142.44 13.0719 145.767 14.0035L150.319 15.3342C154.79 16.5851 156.733 18.7942 156.733 22.3606C156.733 27.1514 152.847 29.9193 147.737 29.9193C142.653 29.9193 138.741 27.3909 137.703 22.8929L140.071 22.9195Z", "M159.608 6.20599H159.075V6.84476H159.581C159.821 6.84476 159.954 6.71168 159.954 6.52537C159.954 6.36568 159.821 6.23261 159.608 6.20599ZM159.075 7.19075V8.01583H158.703V5.88661H159.555C160.007 5.88661 160.3 6.12615 160.3 6.55199C160.3 6.89799 160.087 7.11091 159.794 7.19075L160.38 8.04244H159.954L159.395 7.21737H159.075V7.19075ZM159.475 5.24784C158.543 5.24784 157.771 5.96646 157.771 6.95122C157.771 7.93598 158.543 8.68121 159.475 8.68121C160.406 8.68121 161.178 7.96259 161.178 6.95122C161.152 5.96646 160.406 5.24784 159.475 5.24784ZM159.475 9.00059C158.383 9.00059 157.479 8.1489 157.479 6.97783C157.479 5.80676 158.383 4.95508 159.475 4.95508C160.566 4.95508 161.471 5.80676 161.471 6.97783C161.471 8.1489 160.566 9.00059 159.475 9.00059Z"];
+  const logo = (x, y, sc) => `<g transform="translate(${x} ${y}) scale(${sc})">` + LOGO_MARK.map(d => `<path class="logomark" d="${d}"/>`).join('') + LOGO_WORD.map(d => `<path class="logoword" d="${d}"/>`).join('') + '</g>';
+  // The mark assembles: each piece glides in from a different corner, then the wordmark appears
+  const logoIntro = (x, y, sc) => LOGO_MARK.map((d, i) => {
+      const [dx, dy] = [[260, -180], [260, 180], [-260, 180], [-260, -180]][i];
+      return fly(x + dx, y + dy, x, y, 1.3, `<g transform="scale(${sc})"><path class="logomark" d="${d}"/></g>`);
+    }).join('') + pop(1.5, `<g transform="translate(${x} ${y}) scale(${sc})">` + LOGO_WORD.map(d => `<path class="logoword" d="${d}"/>`).join('') + '</g>');
+  // ---------- Content ----------
+  const titleScene = `
+    <g class="scene" id="sc-title">
+      ${logo(357, 92, 1.5)}
+      ${T(480, 196, 'VULCAN · THE COMPLETE LESSON', 'eyb')}
+      ${T(480, 256, 'Vulcan, from start to finish', 'xl2')}
+      ${T(480, 300, '18 chapters · every concept in the guide · about 45 minutes', 'dim')}
+    </g>`;
+
+  const WIDE = [640, 360, 0.75];
+  const scenes = [
+    {
+      title: 'Welcome',
+      lines: [
+        'Welcome to DataOS. This lesson is about Vulcan, the tool you use in DataOS to build data products.',
+        'By the end, you will be able to explain how Vulcan builds a data product: transforming the data, checking it, describing it and serving it, and why each part matters.',
+        'We will learn it all through one example: Bean Street, a small coffee chain with three shops in Lisbon, named Harbor, Market and Station.',
+        'There are eighteen short chapters, in five parts: foundations, building models, safe changes, the semantic layer, and access, AI and daily work.',
+        'After each chapter, a few quick questions check your understanding. And each chapter ends with a one line summary you can repeat to your team.',
+        "Use the progress bar to jump to any chapter, turn captions on or off, switch to light or dark, or present it full screen. Let's begin."
+      ],
+      cam: [[640, 330, 0.85], [640, 860, 1.0], [640, 1110, 0.95], [640, 1425, 0.75], [640, 1700, 0.95], [640, 1960, 0.9]],
+      svg: [
+        U(0, 0, logoIntro(312, 200, 4) + pop(2.1, T(640, 430, 'Vulcan, from start to finish', 'big')) + pop(2.4, T(640, 470, 'an interactive lesson', 'sm dim'))),
+        U(1, 1, T(640, 740, 'how Vulcan builds a data product', 'sm dim') +
+             [['Transform', gear(340, 840)], ['Check', shield(540, 842, 't')], ['Describe', tag(742, 840)], ['Serve', sparkle(940, 840)]].map(([t, ic], i) =>
+               pop(0.2 + i * 0.3, `<circle class="il t fillp" cx="${340 + i * 200}" cy="840" r="44"/>` + ic + T(340 + i * 200, 920, t, 'ttl'))).join('')),
+        U(2, 2, shop(250, 1010, 'Harbor') + shop(534, 1010, 'Market') + shop(818, 1010, 'Station')),
+        U(3, 3, [['Foundations', 'chapters 1 to 5'], ['Building models', 'chapters 6 to 8'], ['Safe changes', 'chapters 9 to 11'], ['The semantic layer', 'chapters 12 to 14'], ['Access, AI, daily work', 'chapters 15 to 18']].map(([t, c], i) =>
+               pop(0.2 + i * 0.25, R(60 + i * 236, 1350, 220, 150, 'il fillp', 14) + T(60 + i * 236 + 20, 1386, `PART ${i + 1}`, 'mono tealt', 'start') +
+                 T(60 + i * 236 + 20, 1424, t, 'ttl', 'start') + T(60 + i * 236 + 20, 1456, c, 'sm dim', 'start'))).join('')),
+        U(4, 4, pop(0.2, R(170, 1610, 430, 180, 'il fillp', 14) + T(194, 1644, 'QUICK QUESTION', 'mono tealt', 'start') +
+               [0, 1, 2].map(i => R(194, 1662 + i * 40, 382, 30, i === 1 ? 'il t' : 'il d', 8)).join('')) +
+             pop(0.7, R(680, 1610, 430, 180, 'recapbg', 14) + T(704, 1644, 'IN SHORT', 'eyb', 'start') + T(704, 1690, 'One sentence per chapter,', 'ttl', 'start') + T(704, 1722, 'to repeat to your team.', 'ttl', 'start'))),
+        G(5, [['progress bar', 'jump to any chapter'], ['CC', 'captions on or off'], ['light / dark', 'theme button'], ['full screen', 'press F']].map(([t, d], i) =>
+               pop(0.2 + i * 0.2, R(160 + i * 245, 1880, 225, 80, 'il fillp', 12) + T(272 + i * 245, 1914, t, 'ttl') + T(272 + i * 245, 1942, d, 'sm dim'))).join('') +
+             pop(1.2, T(640, 2040, "Let's begin.", 'big tealt')))
+      ].join('')
+    },
+    {
+      title: 'Drift, and the data product',
+      lines: [
+        'This is Bean Street, a coffee chain with three shops in Lisbon. Each shop is named after where it is: Harbor, Market and Station.',
+        'Every latte and croissant rings up on a cash register, and becomes a row in the POS system.',
+        'Lots of teams use that data. And each team keeps its own copy of what revenue means: in the catalog, the quality tool, the governance tool, the BI tool.',
+        'One day, finance decides that revenue should leave out refunds. They update one tool. The others never hear about it.',
+        'Now two dashboards show two different revenue numbers for the same week. No error, nothing broken. This is drift, and an AI agent will repeat the wrong number with confidence.',
+        'A data product fixes this. It is one managed unit, with a named owner, a published contract, quality and access rules, and named consumers. You write all of it together, so nothing can drift.'
+      ],
+      recap: 'Drift is when copies of one definition quietly stop agreeing. A data product keeps the data, its meaning, its rules and its owner together, so they cannot drift.',
+      cam: [[400, 200, 1.15], [640, 220, 0.76], [640, 420, 0.78], [585, 475, 0.85], [690, 600, 1.0], WIDE],
+      svg: [
+        G(0, shop(40, 90, 'Harbor') + shop(300, 90, 'Market') + shop(560, 90, 'Station')),
+        G(1, [40, 300, 560].map(x => P(`M${x + 155} 292 V330 H900 Q945 330 948 250`, 'il d dash')).join('') +
+             [40, 300, 560].map(x => flowDots(`M${x + 155} 292 V330 H900 Q945 330 948 250`, 4, 4.5)).join('') +
+             tank(1040, 200, 180, 120, 'POS orders', 'raw.pos_orders') + T(1205, 300, 'orders so far', 'sm dim') + num(1205, 336, 1284, 'big tealt')),
+        G(2, [60, 330, 600, 870].map((x, i) => draw(`M1040 276 C1040 360 ${x + 120} 340 ${x + 120} 416`, 'il d') +
+               R(x, 420, 240, 110, 'il fillp', 12) + T(x + 20, 456, ['catalog', 'quality', 'governance', 'BI'][i], 'ttl', 'start')).join('') +
+             U(2, 2, [60, 330, 600, 870].map(x => T(x + 20, 496, 'revenue: all orders', 'mono dim', 'start')).join(''))),
+        G(3, R(60, 420, 240, 110, 'il t pulse', 12) + T(80, 496, 'revenue: no refunds', 'mono tealt', 'start') + pop(0.3, T(280, 452, 'updated', 'sm tealt', 'end')) +
+             [330, 600, 870].map((x, i) => T(x + 20, 496, 'revenue: all orders', 'mono warn', 'start') + pop(0.6 + i * 0.2, T(x + 220, 452, 'old', 'sm warn', 'end'))).join('')),
+        G(4, screenBox(330, 560, 240, 120, 'Weekly revenue') + num(552, 640, 1240, 'big', 0, 0, 'end') +
+             screenBox(870, 560, 240, 120, 'Weekly revenue') + num(1092, 640, 1310, 'big warn', 0, 0, 'end') +
+             `<line class="il d" x1="450" y1="530" x2="450" y2="558"/><line class="il d" x1="990" y1="530" x2="990" y2="558"/>` +
+             pop(1.2, T(720, 640, '≠', 'big warn'))),
+        G(5, veil(-400, -300, 2100, 1400) + R(240, 190, 800, 340, 'solid', 18) + R(240, 190, 800, 340, 'layer', 18) + T(640, 260, 'Data product', 'big') +
+             iconCircle(370, 360, 'data', `<ellipse class="il t" cx="370" cy="350" rx="14" ry="5"/>` + P('M356 350 v20 a14 5 0 0 0 28 0 v-20', 'il t')) +
+             iconCircle(550, 360, 'meaning', tag(552, 360)) +
+             iconCircle(730, 360, 'rules', shield(730, 358, 't')) +
+             iconCircle(910, 360, 'owner', `<circle class="il t" cx="910" cy="350" r="8"/>` + P('M896 375 q0 -14 14 -14 q14 0 14 14', 'il t')) +
+             T(640, 500, 'owner · contract · quality and access rules · consumers', 'sm tealt'))
+      ].join('')
+    },
+    {
+      title: 'Where Vulcan fits',
+      lines: [
+        'In DataOS, a data product goes through five steps: discover, design, build, publish and consume. Vulcan is the tool for the build step.',
+        'In one Vulcan project, you write four kinds of things together, and Vulcan reads them all as one.',
+        'Transform: models, in SQL or Python, that turn raw data into business tables. Vulcan connects them into one graph and builds them in order.',
+        'Check: assertions, unit tests, quality checks and linter rules. Bad data stops when it arrives, not when someone sees a wrong chart.',
+        'Describe: a semantic layer of measures, dimensions and metrics, defined once, so every consumer gets the same answer.',
+        'Serve: SQL, REST and GraphQL APIs, so dashboards, apps and AI agents ask for that meaning by name, with access rules applied.',
+        'Vulcan sends the SQL to the engine you already use, like Postgres, Snowflake, Databricks or Trino. Your data stays in your warehouse.',
+        'The payoff shows in two numbers. MTTD, the mean time to detect a data problem, and MTTR, the mean time to recover from it. Vulcan shortens both.'
+      ],
+      recap: 'Vulcan is the build step. One project holds your transforms, checks, meaning and APIs, and it runs on the engine you already have.',
+      cam: [[640, 200, 0.82], [640, 380, 0.8], [450, 305, 1.25], [830, 305, 1.25], [450, 475, 1.25], [830, 475, 1.25], WIDE, WIDE],
+      svg: [
+        G(0, flow(60, 200, 40, [['Discover'], ['Design'], ['Build', '', 'tealfill'], ['Publish'], ['Consume']], 60, 40)),
+        G(1, draw('M620 124 V166', 'il t') + R(240, 170, 800, 420, 'layer', 18) + T(640, 206, 'one Vulcan project', 'sm tealt') +
+             [[270, 230], [650, 230], [270, 400], [650, 400]].map(([x, y]) => R(x, y, 360, 150, 'il fillp', 14)).join('')),
+        G(2, R(270, 230, 360, 150, 'il t', 14) + gear(310, 272) + T(340, 280, 'Transform', 'ttl', 'start') +
+             T(290, 320, 'models in SQL or Python', 'sm dim', 'start') + T(290, 344, 'one graph, built in order', 'sm dim', 'start') +
+             arrow(296, 360, 606, 360, 't') + flowDots('M300 360 H600', 4, 3, 'dot', 4)),
+        G(3, R(650, 230, 360, 150, 'il t', 14) + `<g class="pulse">${shield(690, 274, 't')}</g>` + T(720, 280, 'Check', 'ttl', 'start') +
+             T(670, 320, 'assertions, tests, quality checks', 'sm dim', 'start') + T(670, 344, 'bad data stops on arrival', 'sm dim', 'start')),
+        G(4, R(270, 400, 360, 150, 'il t', 14) + tag(312, 442) + T(340, 450, 'Describe', 'ttl', 'start') +
+             T(290, 490, 'measures, dimensions, metrics', 'sm dim', 'start') + T(290, 514, 'defined once', 'sm dim', 'start')),
+        G(5, R(650, 400, 360, 150, 'il t', 14) + sparkle(690, 444) + T(720, 450, 'Serve', 'ttl', 'start') +
+             T(670, 490, 'SQL, REST and GraphQL APIs', 'sm dim', 'start') + T(670, 514, 'dashboards, apps, AI agents', 'sm dim', 'start')),
+        U(6, 6, veil(-400, -300, 2100, 1400) + node(480, 150, 320, 70, 'Vulcan', 'sends SQL to your engine', 'layer') +
+             draw('M640 224 V330', 'il t') + flowDots('M640 224 V330', 3, 1.6) +
+             tank(640, 420, 300, 150, 'your warehouse', 'the data stays here') + lockIcon(640, 520) +
+             chip(250, 380, 100, 'Postgres', 't') + chip(250, 420, 110, 'Snowflake', 't') + chip(930, 380, 110, 'Databricks', 't') + chip(930, 420, 70, 'Trino', 't')),
+        G(7, veil(-400, -300, 2100, 1400) + R(140, 150, 1000, 420, 'solid', 18) + R(140, 150, 1000, 420, 'il d', 18) +
+             T(640, 196, 'problem arrives  →  someone knows (MTTD)  →  data correct again (MTTR)', 'sm dim') +
+             T(180, 270, 'without checks', 'sm', 'start') + grow(380, 250, 420, 30, 'emberfill', 0.3) + grow(806, 250, 300, 30, 'emberfill2', 0.9) +
+             T(590, 306, 'MTTD: found next day', 'sm warn') + T(956, 306, 'MTTR: rebuild everything', 'sm warn') +
+             T(180, 410, 'with Vulcan', 'sm tealt', 'start') + grow(380, 390, 50, 30, 'tealfill', 1.5) + grow(436, 390, 130, 30, 'tealfill2', 1.9) +
+             T(405, 446, 'minutes', 'sm tealt') + T(500, 446, 'hours', 'sm tealt') + pop(2.4, T(640, 520, 'both numbers get shorter', 'ttl tealt')))
+      ].join('')
+    },
+    {
+      title: 'The project and its layers',
+      lines: [
+        'A Vulcan project is one folder. Vulcan reads every file in it together, so it knows how each part connects to the others.',
+        'config.yaml holds the settings for the whole project: the SQL dialect, the users, the linter, and where notifications go.',
+        'inputs describe tables that other systems write, like the POS orders. Vulcan only reads them. seeds are small CSV files kept in Git, like the list of stores.',
+        'models hold your logic. audits hold standalone checks, tests hold unit tests, signals hold readiness checks, policies hold access rules, and plugins hold Python extensions.',
+        'Bean Street puts its tables in three layers, each in its own schema. Bronze is the raw inputs. Silver is clean tables, in bean_internal. Gold is the business tables, in bean_street.',
+        'Consumers only get gold, and the semantic layer reads only gold too. Bronze and silver stay internal, so bad data in them never reaches a consumer.'
+      ],
+      recap: 'One folder holds the whole data product. Data moves from bronze to silver to gold, and consumers only ever see gold.',
+      cam: [[340, 340, 1.0], [340, 230, 1.3], [340, 290, 1.3], [340, 420, 1.1], [970, 340, 0.95], [800, 330, 0.8]],
+      svg: [
+        G(0, R(60, 70, 560, 520, 'il fillp', 14) + folderIcon(80, 82) + T(120, 102, 'bean-street/', 'mono tealt', 'start') +
+             [['config.yaml', 'project settings', 1], ['inputs/', 'tables other systems write'], ['seeds/', 'small CSV files'], ['models/', 'your SQL and Python logic'],
+              ['audits/', 'standalone checks'], ['tests/', 'unit tests'], ['signals/', 'readiness checks'], ['policies/', 'access rules'], ['plugins/', 'Python extensions']].map(([n, d, f], i) =>
+               (f ? fileIcon(98, 120 + i * 52) : folderIcon(94, 118 + i * 52, 'il d')) + T(140, 136 + i * 52, n, 'mono', 'start') + T(330, 136 + i * 52, d, 'sm dim', 'start')).join('')),
+        U(1, 1, R(72, 110, 536, 46, 'codehl', 8)),
+        U(2, 2, R(72, 162, 536, 98, 'codehl', 8)),
+        U(3, 3, R(72, 266, 536, 306, 'codehl', 8)),
+        G(4, arrow(1250, 576, 1250, 218, 't') + flowDots('M1250 576 V222', 4, 3, 'dot', 5) + T(1236, 202, 'data moves up', 'sm tealt', 'end') +
+             [['Bronze', 'schema raw', 470, 'il fillp'], ['Silver', 'schema bean_internal', 340, 'il fillp'], ['Gold', 'schema bean_street', 210, 'layer']].map(([t, s, y, c]) =>
+               R(720, y, 500, 110, c, 12) + T(760, y + 48, t, 'ttl', 'start') + T(760, y + 76, s, 'mono dim', 'start')).join('')),
+        G(5, `<line class="arr e dash" x1="700" y1="330" x2="1240" y2="330"/>` + T(1200, 404, 'internal', 'sm dim', 'end') + T(1200, 534, 'internal', 'sm dim', 'end') +
+             [['Dashboard', 760], ['App', 900], ['AI agent', 1040]].map(([t, x]) => R(x, 90, 120, 50, 'il t fillp', 10) + T(x + 60, 121, t, 'sm') + arrow(x + 60, 196, x + 60, 146, 't')).join('') +
+             T(970, 70, 'consumers read gold only', 'sm tealt'))
+      ].join('')
+    },
+    {
+      title: 'The graph builds itself',
+      lines: [
+        'In most tools, you write each step, and then a separate schedule that says what runs when. Two things that can fall out of step.',
+        "In Vulcan, you just write models. Here's daily sales. It reads orders, stores and customers.",
+        'Vulcan reads those FROM and JOIN lines, and draws the connections for you. The tables a model reads are its parents. The models that read it are its children.',
+        'Add every model, and you get a graph. Vulcan builds parents first, then children, in the right order, every time. A new model finds its own place.',
+        'Now change one model: customers. Vulcan follows the arrows, and rebuilds only what comes after it. Models that do not read from it do not run.',
+        'The graph also catches mistakes early. A model that reads a table nobody builds, or two models that read each other in a loop, stop the plan with an error.'
+      ],
+      recap: 'You write models, not schedules. Vulcan reads FROM and JOIN, builds parents before children, and after a change rebuilds only what comes after it.',
+      cam: [[260, 250, 1.25], [270, 520, 1.4], WIDE, [900, 360, 0.92], [940, 400, 1.0], [420, 600, 1.2]],
+      svg: [
+        G(0, R(60, 90, 320, 290, 'il fillp', 12) + R(170, 76, 100, 26, 'il d', 8) + T(80, 136, 'job schedule', 'sm dim', 'start') + clock(330, 136) +
+             [['06:00', 'load_orders'], ['06:10', 'build_customers'], ['06:20', 'daily_sales'], ['06:30', 'weekly_revenue']].map(([t, n], i) =>
+               T(80, 200 + i * 42, t, 'mono dim', 'start') + T(140, 200 + i * 42, n, 'mono' + (i === 1 ? ' warn' : ''), 'start')).join('') +
+             pop(1.5, T(220, 420, 'order and logic live apart', 'sm warn'))),
+        G(1, T(60, 450, 'models/gold/daily_sales.sql', 'mono dim', 'start') +
+             `<g class="pulsehl">${code(60, 460, 420, ['MODEL (name bean_street.daily_sales)', 'SELECT ...', 'FROM bean_internal.orders', 'JOIN bean_internal.stores', 'LEFT JOIN bean_internal.customers'], [2, 3, 4])}</g>`),
+        G(2, mcard(790, 120, 'orders') + mcard(790, 330, 'stores') + mcard(790, 540, 'customers') + mcard(1040, 330, 'daily_sales', 'layer') +
+             U(2, 2, [[530, 147], [551, 357], [572, 567]].map(([y, ty]) => draw(`M484 ${y - 5} C640 ${y - 5} 640 ${ty} 786 ${ty}`, 'il t dash')).join('')) +
+             draw('M960 147 C1000 147 1000 350 1036 352', 'il') + draw('M960 357 H1036', 'il') + draw('M960 567 C1000 567 1000 364 1036 362', 'il') +
+             U(2, 2, T(875, 104, 'parents', 'sm tealt') + T(1125, 314, 'child', 'sm tealt'))),
+        G(3, mcard(560, 120, 'pos_orders') + mcard(560, 330, 'stores.csv') + mcard(560, 540, 'members') + mcard(1040, 540, 'weekly_revenue') +
+             [147, 357, 567].map(y => arrow(734, y, 786, y)).join('') + draw('M1125 386 V536', 'il') +
+             [[560, 120], [560, 330], [560, 540]].map(([x, y]) => badge(x, y, 1, 0.3)).join('') +
+             [[790, 120], [790, 330], [790, 540]].map(([x, y]) => badge(x, y, 2, 0.9)).join('') + badge(1040, 330, 3, 1.5) + badge(1040, 540, 4, 2.1)),
+        U(4, 4, veil(550, 110, 420, 290) + veil(550, 530, 190, 74) + R(786, 536, 178, 62, 'il e pulse', 12) +
+             R(1036, 326, 178, 62, 'il t', 12) + R(1036, 536, 178, 62, 'il t', 12) +
+             flowDots('M960 567 C1000 567 1000 364 1036 362 M1125 386 V536', 3, 2.4, 'dot e', 6) +
+             T(875, 628, 'changed', 'sm warn') + T(1125, 628, 'built again', 'sm tealt')),
+        G(5, R(60, 620, 300, 56, 'il fillp', 10) + T(80, 644, 'FROM bean_internal.payments', 'mono', 'start') + T(80, 666, 'no model or input has this name', 'sm warn', 'start') +
+             R(420, 620, 80, 44, 'il e', 10) + T(460, 648, 'A', 'mono') + R(600, 620, 80, 44, 'il e', 10) + T(640, 648, 'B', 'mono') +
+             P('M504 630 C540 606 560 606 596 630', 'il e') + P('M596 656 C560 680 540 680 504 656', 'il e') +
+             flowDots('M504 630 C540 606 560 606 596 630 M596 656 C560 680 540 680 504 656', 2, 2, 'dot e', 4) +
+             pop(0.8, chip(420, 690, 260, 'a loop has no first step', 'e')))
+      ].join('')
+    },
+    {
+      title: 'Runs, crons and intervals',
+      lines: [
+        'Your platform starts a run on a schedule, say every fifteen minutes. In each run, Vulcan finds what is due, translates the SQL, builds it, and records what it built.',
+        'Each model has a cron, like daily or hourly. The cron says how often the model is due, and it sets the size of an interval: one day, or one hour, of data.',
+        'Vulcan records every interval it built, and builds only the missing ones. Start a second run straight after the first, and it does nothing.',
+        'It only builds complete intervals. At 10:30, an hourly model gets 9 to 10, not 10 to 11. A daily model gets yesterday, not today.',
+        'Models in one graph can have different crons. A daily model that reads an hourly one is safe: it waits until all the hours of the day are built.',
+        "The other way round is not safe. Say an hourly model reads daily sales. At 10 in the morning, today is not built yet, so the hour is built empty and marked done. When today arrives tomorrow, those hours are never filled in.",
+        "And you write every SQL model in one dialect, set once in config.yaml. Bean Street uses Postgres. Move to Snowflake, and Vulcan translates. Your SQL models don't change. Only the connection does."
+      ],
+      recap: 'A cron sets how often a model runs and how big each interval is. Vulcan builds only complete, missing intervals, and translates your SQL for any engine.',
+      cam: [[525, 130, 0.98], [520, 240, 1.0], [520, 260, 1.0], [400, 440, 1.15], [990, 470, 1.15], [990, 620, 1.15], [580, 700, 0.85]],
+      svg: [
+        G(0, flow(60, 190, 40, [['Find due work'], ['Translate'], ['Build'], ['Record']], 50) +
+             P('M845 58 V40 Q845 22 827 22 H173 Q155 22 155 36', 'il t dash') + arrow(155, 34, 155, 56, 't') + flowDots('M845 58 V40 Q845 22 827 22 H173 Q155 22 155 34', 2, 3, 'dot', 4) +
+             T(500, 6, 'then the next run starts', 'sm tealt') + pop(0.6, chip(390, 128, 220, 'run: every 15 minutes', 't'))),
+        G(1, T(60, 188, 'orders · cron: daily · one box = one interval', 'sm dim', 'start') +
+             dayBoxes(60, 200, ['Oct 1', 'Oct 2', 'Oct 3', 'Oct 4', 'Oct 5', 'Oct 6', 'Oct 7', 'Oct 8'], () => true, 100, 116, 70)),
+        G(2, pop(0.6, chip(60, 290, 300, 'run again → nothing to do', 't'))),
+        G(3, T(60, 382, 'hourly model, at 10:30', 'sm dim', 'start') +
+             dayBoxes(60, 394, ['7–8', '8–9', '9–10'], () => true, 110, 126, 60) +
+             R(438, 394, 110, 60, 'il d wait', 10) + T(493, 429, '10–11', 'sm dim') + clock(612, 424, false) + T(612, 476, '10:30', 'mono') +
+             T(60, 500, 'daily model at 10:30 gets yesterday, Oct 5, not today', 'sm', 'start')),
+        G(4, T(720, 384, 'daily reads hourly: safe', 'sm tealt', 'start') +
+             Array.from({ length: 6 }, (_, i) => `<rect class="tealfill fillin" style="animation-delay:${0.3 + i * 0.15}s" x="${720 + i * 44}" y="402" width="36" height="36" rx="6"/>`).join('') +
+             T(820, 466, 'hourly parent', 'sm dim') + arrow(990, 420, 1066, 420, 't') + R(1070, 392, 170, 56, 'layer', 10) + T(1155, 426, 'daily child', 'sm') +
+             pop(1.6, shield(1155, 500, 't'))),
+        G(5, T(720, 544, 'hourly reads daily: not safe', 'sm warn', 'start') +
+             R(720, 562, 170, 56, 'il d wait', 10) + T(805, 596, 'daily: not built', 'sm dim') + arrow(894, 590, 936, 590, 'e') +
+             Array.from({ length: 6 }, (_, i) => R(940 + i * 50, 572, 40, 36, 'badrow', 6)).join('') + T(1080, 636, 'hourly child: built from empty data', 'sm warn') +
+             T(1080, 662, 'those hours are never filled in', 'sm warn')),
+        G(6, code(60, 700, 260, ['dialect: postgres']) + arrow(324, 722, 386, 722, 't') +
+             chip(390, 709, 110, 'Snowflake', 't') + chip(510, 709, 110, 'Databricks', 't') + chip(630, 709, 80, 'Trino', 't') + chip(720, 709, 100, 'BigQuery', 't') + chip(830, 709, 100, 'Redshift', 't') +
+             T(390, 768, 'same models, translated for each engine', 'sm dim', 'start'))
+      ].join('')
+    },
+    {
+      title: 'Signals: wait until ready',
+      lines: [
+        "A cron knows when a day is due. It can't tell if the data is ready. Tonight, Station closes late, and its orders arrive two hours after the others.",
+        'Without a check, Vulcan builds the day with two stores out of three. Revenue looks low, the day is marked done, and the late orders never get in.',
+        'A signal fixes that. It is a Python function in the signals folder that answers one question: which missing days are ready? Until Station closes, the answer is no.',
+        'A day that is not ready stays missing, and Vulcan asks again in the next run. The children of the model wait for that day too.',
+        'When Station closes, the signal says yes, and Vulcan builds the full day.',
+        'Two things to know. If a model has several signals, a day is ready only when all of them agree. And Vulcan sends no message while a day waits, so add a freshness check if a wait could run long.'
+      ],
+      recap: 'A signal makes a model wait until its source is really ready, so half a day never gets marked as done.',
+      cam: [[520, 410, 1.0], [760, 410, 0.82], [900, 330, 0.95], [1000, 450, 1.05], [680, 400, 0.78], [470, 190, 1.1]],
+      svg: [
+        G(0, R(-200, 250, 1700, 520, 'night', 0) + `<circle class="il d" cx="40" cy="290" r="16"/>` +
+             [[260, 290], [520, 275], [660, 310], [900, 285]].map(([x, y], i) => `<circle class="dot pulse" style="animation-delay:${i * .4}s" cx="${x}" cy="${y}" r="2"/>`).join('') +
+             shop(80, 330, 'Harbor') + shop(380, 330, 'Market') + shop(680, 330, 'Station') +
+             closed(80, 330) + closed(380, 330) + U(0, 3, clock(960, 400) + T(960, 460, '+2 h', 'sm warn'))),
+        G(1, R(1060, 300, 190, 210, 'il fillp', 12) + T(1155, 332, 'Oct 10', 'ttl') +
+             ['Harbor', 'Market', 'Station'].map((s, i) => R(1076, 350 + i * 48, 158, 38, 'il d', 8) + T(1155, 375 + i * 48, s, 'sm')).join('')),
+        U(1, 1, [0, 1].map(i => R(1076, 350 + i * 48, 158, 38, 'badrow', 8) + T(1155, 375 + i * 48, ['Harbor', 'Market'][i], 'sm warn')).join('') +
+             R(1076, 446, 158, 38, 'il e wait', 8) + T(1155, 536, 'built with 2 of 3, marked done', 'sm warn')),
+        G(2, code(980, 176, 280, ['@signal()', 'def pos_day_closed(batch):', '    return ready_days'])),
+        U(2, 3, ['Harbor', 'Market', 'Station'].map((s, i) => R(1076, 350 + i * 48, 158, 38, 'il d wait', 8)).join('') +
+             pop(0.4, chip(1060, 268, 190, 'ready? not yet', 'e')) + T(1155, 536, 'the day waits', 'sm dim')),
+        U(3, 3, arrow(1155, 548, 1155, 578) + R(1060, 582, 190, 50, 'il d wait', 10) + T(1155, 612, 'daily_sales waits too', 'sm dim')),
+        G(4, closed(680, 330) + ['Harbor', 'Market', 'Station'].map((s, i) =>
+               `<rect class="tealfill fillin" style="animation-delay:${0.4 + i * 0.3}s" x="1076" y="${350 + i * 48}" width="158" height="38" rx="8"/>` +
+               T(1155, 375 + i * 48, s, 'sm ontealt')).join('') +
+             pop(0.2, chip(1060, 268, 190, 'ready? yes', 't')) + T(1155, 536, 'all 3 stores, built', 'sm tealt')),
+        G(5, chip(80, 120, 200, 'pos_day_closed: yes', 't') + T(300, 138, 'AND', 'mono dim') + chip(330, 120, 170, 'freshness: yes', 't') +
+             arrow(504, 133, 546, 133, 't') + chip(550, 120, 140, 'day is ready', 't') +
+             pop(0.8, chip(80, 180, 610, 'no message while a day waits → add a freshness check', 'e')))
+      ].join('')
+    },
+    {
+      title: 'Model kinds',
+      lines: [
+        'Each model has a kind. The SQL stays the same. The kind decides how Vulcan updates the table in each run, and that matters for both cost and correctness.',
+        "Full rebuilds the whole table every run. It's simple and always current, but costly for big tables. Bean Street's daily sales model is full.",
+        "Incremental by time range builds only the new intervals. It's the usual choice for big event tables, like orders. Rebuild a day, and Vulcan replaces that day's rows, so nothing is duplicated.",
+        'Incremental by unique key merges rows by their key. It updates rows it already knows, and adds the new ones. Use it when rows change and you only need the latest version.',
+        'SCD type 2 keeps history. When Ana moves from silver to gold, Vulcan closes her old row and adds a new one, with valid from and valid to dates. Finance can still ask what tier she had in September.',
+        'Seed loads a small CSV kept in the project, like the stores list. View stores no table, and is computed at query time. Input marks a table another system owns. Embedded is shared logic that other models pull in.'
+      ],
+      recap: 'The kind is how a table updates. Full rebuilds it, incremental by time adds new days, unique key merges rows, and SCD type 2 keeps every past version.',
+      cam: [[640, 420, 0.6], [330, 180, 1.35], [950, 180, 1.35], [330, 490, 1.35], [950, 490, 1.35], [640, 700, 0.78]],
+      svg: [
+        G(0, [[40, 40, 'FULL'], [660, 40, 'INCREMENTAL_BY_TIME_RANGE'], [40, 350, 'INCREMENTAL_BY_UNIQUE_KEY'], [660, 350, 'SCD_TYPE_2_BY_TIME']].map(([x, y, k]) =>
+               R(x, y, 580, 280, 'il fillp', 14) + T(x + 24, y + 42, k, 'mono tealt', 'start')).join('') +
+             [[40, 'SEED'], [350, 'VIEW'], [660, 'INPUT'], [970, 'EMBEDDED']].map(([x, k]) => R(x, 660, 290, 150, 'il fillp', 14) + T(x + 22, 698, k, 'mono tealt', 'start')).join('')),
+        G(1, T(64, 112, 'rebuilds all rows each run · daily_sales', 'sm', 'start') +
+             rowsTable(64, 126, 170, 36, ['store', 'day', 'revenue'], [['', ['Harbor', '10-01', '120.40']], ['', ['Harbor', '10-02', '98.10']], ['', ['Harbor', '10-03', '131.70']]]) +
+             [0, 1, 2].map(i => `<rect class="tealsoft fillin" style="animation-delay:${0.4 + i * 0.25}s" x="66" y="${164 + i * 36}" width="506" height="32" rx="4"/>`).join('') +
+             T(318, 304, 'every row, every run', 'sm tealt')),
+        G(2, T(684, 112, 'builds only new intervals · orders', 'sm', 'start') +
+             rowsTable(684, 126, 170, 36, ['order_id', 'day', 'amount'], [['dimrow', ['1001', '10-01', '4.50']], ['dimrow', ['1002', '10-02', '3.00']]]) +
+             fly(1300, 252, 684, 234, 1.2, R(0, 0, 510, 34, 'chipf', 6) + T(85, 23, '1003', 'mono tealt') + T(255, 23, '10-03', 'mono tealt') + T(425, 23, '4.20', 'mono tealt')) +
+             T(938, 304, 'rebuild a day: its rows are replaced, no duplicates', 'sm tealt')),
+        G(3, T(64, 422, 'merges by key · latest version only', 'sm', 'start') +
+             rowsTable(64, 436, 170, 36, ['customer_id', 'name', 'tier'], [['', ['7', 'Ana', (x, y) => soon(T(x, y, 'silver', 'mono')) + later(T(x, y, 'gold', 'mono tealt'))]], ['', ['8', 'Rui', 'gold']]]) +
+             fly(-200, 562, 64, 544, 1.2, R(0, 0, 510, 34, 'chipf', 6) + T(85, 23, '9', 'mono tealt') + T(255, 23, 'Inês', 'mono tealt') + T(425, 23, 'silver', 'mono tealt')) +
+             T(318, 614, 'the old tier is gone', 'sm dim')),
+        G(4, T(684, 422, 'keeps history · customers', 'sm', 'start') +
+             rowsTable(684, 436, 170, 36, ['tier', 'valid_from', 'valid_to'], [['', ['silver', '09-01', (x, y) => soon(T(x, y, 'NULL', 'mono')) + later(T(x, y, '10-05', 'mono tealt'))]]]) +
+             fly(1300, 526, 684, 508, 1.2, R(0, 0, 510, 34, 'chipf', 6) + T(85, 23, 'gold', 'mono tealt') + T(255, 23, '10-05', 'mono tealt') + T(425, 23, 'NULL', 'mono tealt')) +
+             T(938, 584, 'NULL = the current version', 'sm dim') + T(938, 608, 'tier on 1 September: silver', 'sm tealt')),
+        G(5, [[40, 'a small CSV in the project', 'stores.csv'], [350, 'no table stored', 'computed at query time'], [660, 'owned by another system', 'Vulcan only reads it'], [970, 'shared logic', 'pulled into its children']].map(([x, a, b], i) =>
+               pop(0.2 + i * 0.25, T(x + 22, 734, a, 'sm', 'start') + T(x + 22, 760, b, 'sm dim', 'start'))).join('') +
+             fileIcon(270, 690) + lockIcon(910, 702) + sparkle(1230, 700))
+      ].join('')
+    },
+    {
+      title: 'Python models',
+      lines: [
+        'Most models are SQL, and SQL runs inside the engine. Use Python only when SQL cannot do the job, like calling an outside API, or forecasting revenue for the next seven days.',
+        'A Python model is a function named execute, under the model decorator. It must declare its columns, because Vulcan creates the table before your code runs.',
+        "The function runs in Vulcan's runner, not in the warehouse. With pandas, every row travels to the runner's memory, and back again. Fine for small tables, risky for big ones.",
+        'With an engine DataFrame, like PySpark on Databricks, Snowpark on Snowflake, or BigQuery DataFrames, the runner only sends instructions. No rows travel.',
+        "Vulcan finds a Python model's parents from its resolve table calls, so each table name must be fixed text. If a name comes from a variable, list the parents in depends on.",
+        "Two more rules. Vulcan can't compare Python code, so every edit counts as a breaking change. And extra libraries, like a forecasting library, go in as wheel files under dependencies/python."
+      ],
+      recap: 'Use Python only when SQL cannot do the job. It runs in the runner, declares its columns, and keeps big data in the engine with an engine DataFrame.',
+      cam: [[400, 380, 1.0], [620, 115, 1.4], [600, 380, 0.9], [600, 380, 0.9], [640, 630, 1.15], [1010, 520, 1.15]],
+      svg: [
+        G(0, tank(240, 380, 260, 220, 'warehouse', 'SQL models run here') + `<circle class="il d dash" cx="240" cy="322" r="30"/>` + flowDots('M240 292 a30 30 0 1 1 -0.1 0', 3, 3, 'dot', 4) +
+             U(0, 1, [['call an outside API', 0.4], ['forecast next 7 days', 0.7], ['machine learning model', 1.0]].map(([s, d], i) => pop(d, chip(450, 336 + i * 44, 250, s, 't'))).join('') +
+             T(575, 318, 'use Python when SQL cannot do it', 'sm dim'))),
+        G(1, `<g class="pulsehl">${code(360, 40, 520, ['@model("bean_street.revenue_forecast",', '    columns={"store_id": "varchar", "revenue": "decimal"})', 'def execute(context, start, end):', '    df = context.fetchdf("SELECT ...")', '    return forecast(df)'], [1, 2])}</g>`),
+        G(2, R(880, 270, 300, 220, 'il fillp', 16) + T(1030, 304, "Vulcan's runner", 'ttl') + T(1030, 328, 'runs the Python function', 'sm dim')),
+        U(2, 2, P('M372 330 C600 260 700 260 876 320', 'il d dash') + P('M876 440 C700 500 600 500 372 430', 'il d dash') +
+             flowDots('M372 330 C600 260 700 260 876 320', 8, 3, 'dot e', 5) + flowDots('M876 440 C700 500 600 500 372 430', 8, 3, 'dot e', 5) +
+             T(620, 250, 'pandas: every row travels', 'sm warn') + R(920, 350, 220, 22, 'il d', 6) + grow(922, 352, 210, 18, 'emberfill', 0.5) + T(1030, 400, 'runner memory fills up', 'sm warn')),
+        U(3, 5, P('M876 380 C700 380 600 380 372 380', 'il t dash') +
+             `<g>${R(-40, -12, 80, 24, 'chipf', 12)}${T(0, 5, 'plan', 'mono tealt')}<animateMotion dur="2.4s" repeatCount="indefinite" path="M876 380 H372"/></g>` +
+             T(620, 360, 'engine DataFrame: only instructions travel', 'sm tealt') + R(920, 350, 220, 22, 'il d', 6) + R(922, 352, 24, 18, 'tealfill', 4) + T(1030, 400, 'runner memory stays small', 'sm tealt') +
+             T(1030, 440, 'PySpark · Snowpark · BigQuery DataFrames', 'sm dim')),
+        G(4, R(300, 580, 680, 100, 'il fillp', 12) +
+             T(320, 614, 'context.resolve_table("bean_street.daily_sales")', 'mono', 'start') + T(960, 614, 'parent found', 'sm tealt', 'end') +
+             T(320, 650, 'context.resolve_table(name)', 'mono warn', 'start') + T(960, 650, 'use depends_on=[...]', 'sm warn', 'end')),
+        G(5, pop(0.2, chip(820, 500, 380, 'any edit to Python code = BREAKING', 'e')) + pop(0.6, chip(820, 540, 380, 'libraries: wheel files in dependencies/python/', 't')))
+      ].join('')
+    },
+    {
+      title: 'Changes: plan, then apply',
+      lines: [
+        "When you change a model, Vulcan doesn't build it straight away. First you ask for a plan: what changed, what it affects, and what must be built again. You read it, then apply it.",
+        'Vulcan compares the old SQL with the new SQL, and gives each change a category.',
+        'Breaking: the change can alter data that children read, like a new filter, or a changed formula. Vulcan rebuilds the model, and all of its children.',
+        "Non-breaking: you only added columns. Only this model is rebuilt, because the children don't read the new column. Metadata: only a description or owner changed, so nothing is built.",
+        'The plan also protects consumers. Remove a column that a measure uses, and the plan stops before any data changes.',
+        'On a big table, a breaking change rebuilds all of history. Make it forward-only, and the old days stay as they are, while new days use the new logic.',
+        'And when the logic is right, but the source sent bad data for some days, you restate just those days. Vulcan rebuilds them, and their children.'
+      ],
+      recap: 'Plan before you apply. Breaking rebuilds the children, non-breaking rebuilds one model, metadata rebuilds nothing, and restating fixes only the bad days.',
+      cam: [[320, 210, 1.3], [880, 250, 1.2], [900, 170, 1.25], [960, 380, 1.2], [320, 460, 1.25], [360, 610, 1.15], [960, 610, 1.15]],
+      svg: [
+        G(0, R(60, 60, 520, 300, 'il fillp', 14) + T(84, 96, '$ vulcan plan', 'mono tealt', 'start') +
+             [['orders', 'BREAKING', 'warn'], ['  └ daily_sales', 'INDIRECT_BREAKING', 'dim'], ['  └ weekly_revenue', 'INDIRECT_BREAKING', 'dim']].map(([m, c, k], i) =>
+               pop(0.4 + i * 0.35, T(84, 140 + i * 36, m, 'mono', 'start') + T(556, 140 + i * 36, c, 'mono ' + k, 'end'))).join('') +
+             pop(1.6, T(84, 300, 'Apply this plan? [y/n]', 'mono', 'start')) + pop(1.9, R(84, 316, 120, 28, 'tealfill', 6) + T(144, 336, 'read, then y', 'sm ontealt'))),
+        G(1, code(700, 220, 360, ['- SELECT amount', '+ SELECT amount * 1.23']) +
+             chip(700, 300, 120, 'BREAKING', 'e') + chip(830, 300, 150, 'NON_BREAKING', 't') + chip(990, 300, 120, 'METADATA', 'd')),
+        G(2, mcard(700, 80, 'orders', 'e') + mcard(960, 80, 'daily_sales') + mcard(960, 150, 'weekly_revenue') +
+             arrow(874, 107, 956, 107, 't') + arrow(1045, 136, 1045, 148, 't') +
+             R(956, 76, 178, 62, 'il t pulse', 12) + R(956, 146, 178, 62, 'il t pulse', 12) + flowDots('M874 107 H956', 2, 1.4, 'dot e', 5)),
+        G(3, R(700, 360, 260, 80, 'il fillp', 12) + T(720, 390, '+ is_large column', 'mono tealt', 'start') + T(720, 420, 'only orders rebuilt', 'sm', 'start') +
+             R(980, 360, 260, 80, 'il fillp', 12) + T(1000, 390, 'description changed', 'mono dim', 'start') + T(1000, 420, 'nothing built', 'sm', 'start')),
+        G(4, R(60, 400, 520, 110, 'il fillp', 12) + T(84, 432, '- revenue   (removed from daily_sales)', 'mono warn', 'start') +
+             T(84, 462, 'measure total_revenue reads it', 'sm', 'start') + pop(0.8, chip(84, 474, 300, 'plan stopped · no data changed', 'e'))),
+        G(5, T(60, 548, 'forward-only: old days stay, new days use the new logic', 'sm tealt', 'start') +
+             dayBoxes(60, 562, ['01', '02', '03', '04', '05', '06', '07', '08', '09'], i => i > 6, 50, 58, 50, 0.3)),
+        G(6, T(700, 548, 'restate Oct 6 and Oct 7', 'sm', 'start') +
+             dayBoxes(700, 562, ['05', '06', '07', '08'], i => i === 1 || i === 2, 56, 66, 50, 0.8) +
+             `<rect class="il e pulse" x="762" y="558" width="128" height="58" rx="10"/>` + T(1040, 594, '+ their children', 'sm tealt', 'start'))
+      ].join('')
+    },
+    {
+      title: 'Four kinds of quality checks',
+      lines: [
+        'Vulcan checks quality at four points, from the moment you write code, to after the data lands.',
+        'The linter reads your SQL while you write, and during every plan, and flags common mistakes, like select star.',
+        'Unit tests give a model fixed input rows, and the rows you expect back. They run during the plan, on no real data. Bean Street tests that each order gets the loyalty tier from the day it was placed.',
+        'Assertions are rules that real data must obey, checked in every run. Put them on an input, in a model, or as a standalone file in audits. When a blocking assertion fails, the children do not run.',
+        "Data quality checks look for patterns that no single row shows, like orders dropping 75 percent in a day. They don't stop data. They record pass, warn or fail, and send a message.",
+        'So: the linter and unit tests guard your logic, before anything is built. Assertions guard every run. Quality checks watch the trends.'
+      ],
+      recap: 'Linter and unit tests check your logic before anything is built. Assertions block bad data in every run. Quality checks report on patterns.',
+      cam: [[700, 165, 0.7], [280, 335, 1.15], [580, 335, 1.15], [880, 335, 1.15], [1180, 335, 1.15], [700, 205, 0.7]],
+      svg: (() => {
+        const X = [280, 580, 880, 1180];
+        const ic = [lens, flask, (x, y) => shield(x, y - 2, 't'), trend];
+        const names = ['Linter', 'Unit tests', 'Assertions', 'Data quality'];
+        const when = ['while you write', 'plan', 'every run', 'after the run'];
+        const what = ['mistakes in SQL', 'wrong logic', 'bad rows', 'odd patterns'];
+        const sq = 'M24 330' + ' q4.25 -4 8.5 0 q4.25 4 8.5 0'.repeat(4);
+        return [
+          // The journey: code on the left, dashboards on the right, four checkpoints between
+          G(0, laptop(40, 124) + `<line class="arr" x1="124" y1="150" x2="1262" y2="150" marker-end="url(#ah)"/>` + flowDots('M124 150 H1262', 6, 6, 'dot', 4) + dashIcon(1276, 122) +
+               T(75, 206, 'your code', 'sm dim') + T(1316, 206, 'dashboards', 'sm dim') +
+               X.map((x, i) => pop(0.3 + i * 0.35, `<circle class="il t fillp" cx="${x}" cy="150" r="30"/>` + ic[i](x, 150) + T(x, 102, when[i], 'sm dim') + T(x, 212, names[i], 'ttl'))).join('')),
+          U(0, 0, X.map((x, i) => pop(1.8 + i * 0.3, T(x, 242, 'catches ' + what[i], 'sm tealt'))).join('')),
+          X.map((x, i) => U(i + 1, i + 1, `<circle class="il t pulse" cx="${x}" cy="150" r="38"/>`)).join(''),
+          // 1 Linter: the SQL is typed, a lens finds SELECT *, the rule pops up
+          U(1, 1, R(0, 250, 560, 210, 'il fillp', 12) + `<line class="rule" x1="0" y1="282" x2="560" y2="282"/>` +
+               [20, 36, 52].map(x => `<circle class="il d" cx="${x}" cy="266" r="4"/>`).join('') + T(540, 271, 'models/orders.sql', 'mono dim', 'end') +
+               [['SELECT', 24, 320, 0.3], ['*', 81, 320, 0.6], ['FROM', 24, 352, 0.9], ['bean_internal.orders', 65, 352, 1.1]].map(([s, x, y, d]) => pop(d, T(x, y, s, 'mono', 'start'))).join('') +
+               pop(2.4, chip(24, 490, 250, 'also runs in every plan', 't')) +
+               `<path class="il t draw" pathLength="1" style="transition-delay:2.6s" d="M278 503 C 470 503 580 330 580 188"/>` +
+               fly(-70, 300, 88, 314, 1.1, lens(0, 0, 'il e'), 3.6) +
+               `<path class="il e draw" pathLength="1" style="transition-delay:4.6s;transition-duration:.6s" d="${sq}"/>` +
+               bubble(110, 372, 330, ['rule: noselectstar', 'name the columns you need'], 'warn', 5.2)),
+          // 2 Unit tests: fixed rows go in, the model runs, the rows that come out match what was expected
+          U(2, 2, T(290, 280, 'fixed input rows', 'sm dim') +
+               R(200, 292, 180, 46, 'il fillp', 10) + T(216, 320, 'order · Oct 1', 'mono', 'start') +
+               R(200, 348, 180, 46, 'il fillp', 10) + T(216, 376, 'order · Oct 6', 'mono', 'start') +
+               R(200, 410, 180, 60, 'il d fillp', 10) + T(216, 434, 'tier history', 'sm dim', 'start') + T(216, 456, 'silver, then gold', 'sm', 'start') +
+               P('M384 368 H496', 'il d') + flowDots('M384 368 H496', 3, 1.4) +
+               R(500, 316, 160, 110, 'layer', 14) + T(580, 346, 'orders model', 'sm') + spin(580, 390, gear(580, 390), 4) +
+               P('M664 368 H736', 'il d') + flowDots('M664 368 H736', 3, 1.4) +
+               T(855, 280, 'expected = actual', 'sm tealt') +
+               [['Oct 1 → silver', 292, 1.4], ['Oct 6 → gold', 348, 2]].map(([s, y, d]) => pop(d, R(740, y, 230, 46, 'il t fillp', 10) + T(756, y + 28, s, 'mono', 'start') + P(`M940 ${y + 23} l5 5 l9 -10`, 'il t'))).join('') +
+               pop(3, chip(740, 412, 230, 'PASS', 't')) +
+               pop(5.5, T(855, 470, 'each order gets the tier of its own day', 'sm dim')) +
+               T(580, 520, 'runs during the plan · touches no real data', 'sm')),
+          // 3 Assertions: good rows flow, a bad row arrives, the gate shuts and the children wait
+          U(3, 3, T(520, 312, 'rows of orders', 'sm dim', 'start') +
+               P('M500 340 H870', 'il d dash') + flowDots('M500 340 H866', 3, 2.2) +
+               P('M890 340 H960 V302 H1010 M960 340 V378 H1010', 'il d') +
+               soon(flowDots('M890 340 H960 V302 H1010', 2, 1.6) + flowDots('M890 340 H960 V378 H1010', 2, 1.6), 7.6) +
+               T(1099, 266, 'children', 'sm dim') + mcard(1014, 275, 'daily_sales') + mcard(1014, 351, 'weekly_revenue') +
+               soon(gate(880, 340, true), 7.6) + later(gate(880, 340, false), 7.7) +
+               fly(470, 340, 834, 340, 1.6, R(-26, -13, 52, 26, 'badrow', 13) + T(0, 5, '450', 'mono warn'), 6) +
+               later(T(880, 420, 'blocking assertion fails', 'sm warn'), 7.8) +
+               later(R(1010, 271, 178, 62, 'veil', 12) + R(1010, 347, 178, 62, 'veil', 12) + T(1099, 432, 'children do not run', 'sm warn'), 8.2) +
+               T(500, 480, 'put them', 'sm dim', 'start') +
+               [['on an input', 570, 150, 3.2], ['in a model', 732, 150, 4], ['a file in audits/', 894, 210, 4.8]].map(([s, x, w, d]) => pop(d, chip(x, 463, w, s, 'd'))).join('')),
+          // 4 Data quality: a trend drops, the status turns to warn, a message goes out, data keeps flowing
+          U(4, 4, R(800, 250, 420, 230, 'il fillp', 12) + T(820, 278, 'orders per day', 'sm dim', 'start') +
+               `<line class="rule" x1="820" y1="460" x2="1200" y2="460"/>` +
+               `<path class="il t thickish draw" pathLength="1" style="transition-duration:2.4s" d="M830 340 L878 330 L926 344 L974 326 L1022 336 L1070 328 L1118 334 L1190 432"/>` +
+               pop(3.2, `<circle class="dot e pulse" cx="1190" cy="432" r="7"/>` + T(1174, 437, 'orders −75%', 'sm warn', 'end')) +
+               T(1262, 270, 'status', 'sm dim', 'start') +
+               ['pass', 'warn', 'fail'].map((s, i) => `<circle class="il d" cx="1272" cy="${300 + i * 36}" r="9"/>` + T(1292, 305 + i * 36, s, 'sm', 'start')).join('') +
+               soon(`<circle class="tealfill" cx="1272" cy="300" r="9"/>`, 8.4) + later(`<circle class="emberfill" cx="1272" cy="336" r="9"/>`, 8.5) +
+               phone(1420, 250) + fly(1300, 336, 1448, 300, 1, env('il e'), 9.4) + T(1448, 372, 'message sent', 'sm dim') +
+               P('M800 530 H1480', 'il d dash') + flowDots('M800 530 H1480', 4, 3) +
+               pop(6.2, T(1140, 514, 'data keeps flowing: quality checks report, they never block', 'sm tealt'))),
+          // 5 Summary: what each pair of checkpoints guards
+          G(5, pop(0.2, R(140, 280, 580, 76, 'layer', 14) + T(430, 312, 'guard the logic', 'sm') + T(430, 336, 'before anything is built', 'sm dim')) +
+               pop(0.8, R(760, 280, 240, 76, 'layer', 14) + T(880, 312, 'guard every run', 'sm') + T(880, 336, 'block bad data', 'sm dim')) +
+               pop(1.4, R(1060, 280, 240, 76, 'il fillp', 14) + T(1180, 312, 'watch trends', 'sm') + T(1180, 336, 'report, never block', 'sm dim')))
+        ].join('');
+      })()
+    },
+    {
+      title: 'Notifications',
+      lines: [
+        'A check is only useful when a person knows about it. So Vulcan sends a message for each important event.',
+        'Events are things that happen in Vulcan: a run failure, an audit failure, a plan change, the end of the data quality checks, and more.',
+        'Targets are where messages go: a Slack channel, a Teams channel, email, a CloudEvents endpoint, or the console. Each target lists the events it wants, under notifyOn.',
+        'Every model has an owner from the users list. When an assertion fails, the owner gets the message on their own targets too. Only assertion failures go to the owner.',
+        "If no target lists an event, nobody hears about it. And a model with no owner gets the project's default owner, or the first user in the list."
+      ],
+      recap: 'Events go to every target that lists them in notifyOn, and assertion failures also go straight to the model owner.',
+      cam: [[480, 330, 1.0], [195, 320, 1.2], [650, 330, 0.8], [650, 390, 0.8], [650, 390, 0.8]],
+      svg: (() => {
+        const EV = ['run_failure', 'audit_failure', 'plan_change', 'dq_end', 'run_end', 'apply_failure'];
+        const ey = i => 140 + i * 56;
+        const TG = [['Slack #data-alerts', 'run_failure, audit_failure', x => T(x, 151 - 92 + 92, '#', 'ttl tealt')],
+          ['Teams · Bean Ops', 'run_end', x => R(x - 11, -11, 22, 22, 'il t', 5)],
+          ['E-mail', 'audit_failure', () => env('il t')],
+          ['CloudEvents', 'any event you list', () => P('M-14 6 a8 8 0 0 1 2 -14 a10 10 0 0 1 19 -2 a7 7 0 0 1 7 16 z', 'il t')],
+          ['Console', 'any event you list', () => T(0, 5, '>_', 'mono tealt')]];
+        const ty = i => 96 + i * 92;
+        return [
+          G(0, R(60, 90, 270, 440, 'layer', 16) + T(84, 122, 'Vulcan', 'ttl', 'start')),
+          // 0 A check fails, but nobody knows until a message reaches a person
+          U(0, 0, shield(195, 300, 'e') + T(195, 352, 'a check fails', 'sm warn') +
+               P('M240 300 C 420 300 600 340 796 348', 'il d dash') +
+               soon(T(760, 290, '?', 'big dim'), 2.4) + person(740, 420, 'someone who can fix it') + phone(800, 300) +
+               fly(240, 300, 828, 348, 1.6, env('il e'), 1)),
+          // 1 Events happen inside Vulcan
+          G(1, EV.map((s, i) => pop(0.3 + i * 0.45, chip(80, ey(i), 230, s, 'd'))).join('') + pop(3, T(195, ey(6) + 18, '… and more', 'sm dim'))),
+          // 2 Targets, each with its own notifyOn list; one event travels to the targets that list it
+          G(2, T(1050, 80, 'targets · notifyOn', 'sm dim') +
+               TG.map(([n, l, icon], i) => pop(0.3 + i * 0.6, R(880, ty(i), 340, 76, 'il fillp', 12) +
+                 `<g transform="translate(914 ${ty(i) + 38})">${i === 0 ? T(0, 7, '#', 'ttl tealt') : icon(0)}</g>` +
+                 T(944, ty(i) + 32, n, 'sm', 'start') + T(944, ty(i) + 56, l, 'mono dim', 'start'))).join('') +
+               later(`<rect class="chip t pulse" x="80" y="${ey(1)}" width="230" height="26" rx="13"/>`, 6.8) +
+               soon(fly(330, ey(1) + 13, 900, ty(0) + 38, 1.2, env('il t'), 7.2) + fly(330, ey(1) + 13, 900, ty(2) + 38, 1.2, env('il t'), 7.5), 8.8) +
+               later(R(876, ty(0) - 4, 348, 84, 'il t', 14) + R(876, ty(2) - 4, 348, 84, 'il t', 14), 8.8) +
+               ''),
+          U(2, 2, pop(9.4, T(605, 580, 'each event goes to every target that lists it', 'sm tealt'))),
+          // 3 Assertion failures also go to the model owner
+          G(3, `<rect class="chip e pulse" x="80" y="${ey(1)}" width="230" height="26" rx="13"/>` + T(195, 562, 'each model has an owner', 'sm dim') +
+               person(570, 650, 'Emily · owner of orders') + phone(612, 552) +
+               fly(330, ey(1) + 13, 640, 600, 1.4, env('il e'), 1.6) +
+               bubble(690, 556, 300, ['audit failed: orders', 'assertion failures also go to the owner'], 'warn', 3)),
+          // 4 An event nobody lists fades out; a model with no owner falls back
+          G(4, `<rect class="chip e pulse" x="80" y="${ey(5)}" width="230" height="26" rx="13"/>` +
+               soon(fly(330, ey(5) + 13, 560, 440, 1.2, env('il e'), 0.6), 2.2) +
+               pop(2.2, T(590, 446, 'no target lists it → nobody hears', 'sm warn', 'start')) +
+               pop(5, chip(400, 482, 440, 'no owner → modelDefaults.owner, or the first user', 't')))
+        ].join('');
+      })()
+    },
+    {
+      title: 'The semantic model',
+      lines: [
+        "Without a semantic layer, each dashboard writes its own revenue SQL. One team leaves out refunds, one doesn't. Same name, different numbers.",
+        "A semantic model is a YAML file that gives business names to one gold table. Bean Street's sales model reads the daily sales table.",
+        'It starts with grain: what one row is. The gold table must declare its grains, the columns that make each row unique. Get the grain wrong, and every number on top of it is wrong.',
+        'Dimensions are ways to group and filter, like store, product or day. Measures are values you add up, like total revenue or order count. Each measure has a type, like sum, count or average, and can carry its own filter.',
+        "Segments are saved filters, like completed orders only, that anyone can add to a question. Joins connect two semantic models, so you can group by the other model's dimensions.",
+        'Consumers ask for members by name, through semantic SQL, REST or GraphQL, and Vulcan writes the SQL. And at every plan, Vulcan checks that each member points to a real column.'
+      ],
+      recap: "A semantic model names a gold table's grain, dimensions, measures, segments and joins once, and every consumer asks for them by name.",
+      cam: [[640, 340, 1.15], [640, 450, 0.78], [640, 720, 1.25], [640, 460, 0.78], [720, 300, 0.95], [640, 380, 0.72]],
+      svg: (() => {
+        const H = ['store_id', 'product', 'order_date', 'status', 'tier', 'revenue'];
+        const hx = i => 390 + i * 100;
+        const flyChip = (x0, y0, x1, y1, w, s, d) => fly(x0, y0, x1, y1, 1.1, R(-w / 2, -13, w, 26, 'chipf', 13) + T(0, 5, s, 'mono tealt'), d);
+        return [
+          // 0 Two dashboards, two SQL definitions, two numbers
+          U(0, 0, screenBox(360, 190, 260, 160, 'Dashboard A') + T(600, 290, '1,240', 'big', 'end') +
+               screenBox(660, 190, 260, 160, 'Dashboard B') + T(900, 290, '1,310', 'big', 'end') +
+               code(360, 384, 260, ['SUM(revenue)', "WHERE status = 'completed'"]) + code(660, 384, 260, ['SUM(revenue)', '-- refunds kept in']) +
+               pop(1.2, T(640, 290, '≠', 'big warn')) + pop(2, T(640, 486, 'same name, different numbers', 'sm warn'))),
+          // 1 The semantic model sits on one gold table
+          G(1, pop(0.2, R(390, 160, 500, 320, 'layer', 16) + T(414, 194, 'sales', 'ttl', 'start') + T(866, 194, 'semantic model · YAML', 'sm dim', 'end') +
+                 T(414, 232, 'Dimensions', 'sm dim', 'start') + R(410, 240, 460, 42, 'il d dash', 10) +
+                 T(414, 306, 'Measures', 'sm dim', 'start') + R(410, 314, 460, 76, 'il d dash', 10) +
+                 T(414, 412, 'Segments', 'sm dim', 'start') + R(410, 420, 220, 44, 'il d dash', 10) +
+                 T(650, 412, 'Joins', 'sm dim', 'start') + R(646, 420, 224, 44, 'il d dash', 10)) +
+               T(640, 598, 'bean_street.daily_sales · gold table', 'mono dim') +
+               rowsTable(340, 610, 100, 34, H, [['', ['S1', 'Latte', '10-06', 'completed', 'gold', '42.50']], ['', ['S1', 'Latte', '10-06', 'refunded', 'gold', '4.50']], ['', ['S2', 'Croissant', '10-06', 'completed', 'silver', '17.50']]]) +
+               `<path class="il t thickish draw" pathLength="1" d="M640 584 V486"/>` + flowDots('M640 584 V486', 3, 1.4) +
+               pop(1.2, T(656, 540, 'depends_on: bean_street.daily_sales', 'mono tealt', 'start'))),
+          // 2 Grain: the columns that make each row unique
+          U(2, 2, [0, 1, 2, 3, 4].map(i => pop(0.6 + i * 0.3, R(342 + i * 100, 612, 96, 132, 'colhlsoft', 6))).join('') +
+               T(640, 812, 'one row = one store, product, day, status and tier', 'sm') +
+               pop(6, T(640, 842, 'wrong grain → every number on top is wrong', 'sm warn'))),
+          G(2, pop(2.2, chip(340, 762, 600, 'grains (store_id, product, order_date, status, loyalty_tier)', 't'))),
+          // 3 Columns rise into the model as dimensions and measures
+          G(3, [['store_name', 0, 490], ['product', 1, 640], ['order_date', 2, 790]].map(([s, c, x], i) => flyChip(hx(c), 627, x, 261, 140, s, 0.6 + i * 0.5)).join('') +
+               [['total_revenue · sum', 523], ['order_count · sum', 757]].map(([s, x], i) => flyChip(hx(5), 627, x, 335, 214, s, 5 + i * 0.6)).join('') +
+               pop(9.5, chip(414, 356, 452, "completed_revenue · sum · filter: status = 'completed'", 'd'))),
+          // 4 A segment is a saved filter; a join docks a second model
+          G(4, fly(hx(3), 627, 518, 442, 1.1, R(-100, -13, 200, 26, 'chipf', 13) + T(-10, 5, 'completed', 'mono tealt') + P('M62 -7 h16 l-6 8 v7 l-4 -3 v-4 z', 'il t'), 0.5) +
+               fly(1380, 300, 1070, 300, 1.2, R(-100, -60, 200, 120, 'il fillp', 14) + T(0, -24, 'stores', 'ttl') + T(0, 0, 'semantic model', 'sm dim') + T(0, 30, 'its own dimensions', 'sm tealt'), 4.5) +
+               pop(5.8, chip(652, 429, 212, 'stores · many_to_one', 't')) +
+               `<path class="il t draw" pathLength="1" style="transition-delay:6s" d="M866 442 C 920 442 930 360 968 344"/>`),
+          // 5 Consumers ask by name; Vulcan writes the SQL; every member is checked at each plan
+          G(5, [['Semantic SQL', 400], ['REST', 580], ['GraphQL', 760]].map(([s, x], i) => pop(0.3 + i * 0.5, R(x, 40, 140, 52, 'il t fillp', 12) + T(x + 70, 72, s, 'mono tealt') +
+                 P(`M${x + 70} 94 V156`, 'il d dash') + flowDots(`M${x + 70} 94 V156`, 2, 1.2))).join('') +
+               pop(5.6, T(960, 388, 'Vulcan writes the SQL', 'sm tealt', 'start') + code(960, 400, 300, ['SELECT SUM(revenue) …', 'FROM daily_sales', 'GROUP BY store_name'])) +
+               `<path class="il t draw" pathLength="1" style="transition-delay:5.8s" d="M892 470 C 926 470 930 446 956 446"/>` +
+               pop(9, shield(984, 540, 't') + T(1012, 546, 'checked at every plan', 'sm tealt', 'start')))
+        ].join('');
+      })()
+    },
+    {
+      title: 'How a measure adds up',
+      lines: [
+        "People and AI agents often ask for a measure over a longer period, like a month. Some measures can be added across days. Some can't.",
+        "Revenue is a flow. Each day adds to the total, so September's revenue is the sum of its thirty days.",
+        "Active members is a stock: a level on each day. Bean Street has 1,200 active members every day of September. Add up the days, and you get 36,000. That's wrong.",
+        'With behavior stock, and period treatment last, Vulcan and the agent take the value on the last day: 1,200.',
+        'Average order value is a ratio. Averaging the daily averages gives the wrong answer. Vulcan works it out from its parts: total revenue divided by order count.',
+        'The behavior travels in the data product\'s metadata, so every consumer, including AI agents, adds things up the right way.'
+      ],
+      recap: 'Flows add up over time, stocks take the value at one point in time, and ratios are worked out again from their parts.',
+      cam: [WIDE, [640, 180, 0.77], [640, 385, 0.77], [640, 385, 0.77], [640, 590, 0.77], WIDE],
+      svg: [
+        G(0, [['revenue', 'flow', 70], ['active members', 'stock', 290], ['average order value', 'ratio', 510]].map(([t, k, y]) =>
+               R(40, y, 1200, 190, 'il fillp', 14) + T(64, y + 40, t, 'ttl', 'start') + T(64, y + 66, k, 'mono tealt', 'start')).join('') +
+             bubble(900, 10, 340, ['"active members in September?"'], '', 0.4)),
+        G(1, Array.from({ length: 30 }, (_, i) => { const h = 30 + ((i * 37) % 70); return `<rect class="tealfill fillin" style="animation-delay:${0.2 + i * 0.03}s" x="${260 + i * 22}" y="${240 - h}" width="16" height="${h}" rx="2"/>`; }).join('') +
+             T(1110, 150, 'sum of 30 days', 'sm dim') + num(1110, 196, 38420, 'big tealt')),
+        G(2, Array.from({ length: 30 }, (_, i) => `<rect class="bar fillin" style="animation-delay:${0.2 + i * 0.03}s" x="${260 + i * 22}" y="410" width="16" height="50" rx="2"/>`).join('') +
+             T(590, 400, '1,200 every day', 'sm dim') + T(1110, 336, 'add the days', 'sm dim') + num(1110, 380, 36000, 'big warn')),
+        G(3, P('M1036 370 L1184 350', 'il e thick') + `<rect class="il t pulse" x="894" y="404" width="24" height="62" rx="4"/>` +
+             T(1110, 436, '1,200', 'big tealt') + T(1110, 462, 'value on 30 September', 'sm tealt')),
+        G(4, T(300, 600, 'average of daily averages', 'sm warn') + P('M200 596 H400', 'il e') +
+             T(640, 590, 'total_revenue', 'mono tealt') + `<line class="il" x1="560" y1="604" x2="720" y2="604"/>` + T(640, 628, 'order_count', 'mono tealt') +
+             T(1000, 610, 'ratio: worked out from its parts', 'sm tealt')),
+        G(5, veil(-400, -300, 2100, 1400) + code(330, 230, 620, ['measures:', '  - name: active_members', '    behavior:', '      type: stock', '      period_treatment: last'], [3, 4]) +
+             T(640, 400, 'the behavior travels in the metadata', 'sm tealt'))
+      ].join('')
+    },
+    {
+      title: 'Rollups and business metrics',
+      lines: [
+        'As data grows, the same questions, like revenue by month and store, get worked out from millions of rows, again and again.',
+        'A rollup is a small summary that Vulcan works out ahead of time, from the semantic model. You list its measures, dimensions, time dimension and granularity.',
+        "When a question can be answered from a rollup, Vulcan answers from there, automatically. Nobody changes their query. It's just faster.",
+        "Rollups are off by default. You turn them on with enable_rollup in config.yaml. And segments can't be pre-aggregated, so a rollup can't include them.",
+        'A business metric takes one measure and puts it on a time axis. Weekly revenue is total revenue, by order date, by week.',
+        'Each metric lives in its own YAML file under models/metrics. It needs a measure, a time column called ts, and a granularity. Dimensions and segments are optional.',
+        'Use a metric for the numbers people ask for again and again, in weekly reports or in questions to AI agents. Everyone gets the same series.'
+      ],
+      recap: 'Rollups work out frequent answers ahead of time, so queries get faster without any change. Metrics fix one measure over time, so everyone gets the same series.',
+      cam: [[540, 340, 1.0], [560, 360, 1.0], [560, 340, 1.0], [560, 470, 1.0], [1880, 300, 1.0], [1880, 720, 1.15], [1880, 1130, 1.0]],
+      svg: (() => {
+        const spark = (x, y, w, h) => P(`M${x} ${y + h * .7} L${x + w * .14} ${y + h * .45} L${x + w * .28} ${y + h * .6} L${x + w * .42} ${y + h * .25} L${x + w * .57} ${y + h * .38} L${x + w * .71} ${y + h * .1} L${x + w * .85} ${y + h * .22} L${x + w} ${y}`, 'il t thickish');
+        const cells = Array.from({ length: 22 * 16 }, (_, i) => `<rect class="bar" x="${180 + (i % 22) * 20}" y="${200 + Math.floor(i / 22) * 15}" width="17" height="12" rx="2"/>`).join('');
+        return [
+          // 0 Millions of rows, scanned again for every repeat of the same question
+          G(0, cells + T(400, 470, 'orders: millions of rows', 'sm dim')),
+          U(0, 0, `<rect class="scan" x="178" y="196" width="26" height="245" rx="4"><animateTransform attributeName="transform" type="translate" values="0 0; 416 0; 0 0" dur="3.2s" repeatCount="indefinite"/></rect>` +
+               [0, 1, 2].map(i => bubble(660, 200 + i * 66, 260, ['"revenue by month, store?"'], '', 0.4 + i * 1.8)).join('') +
+               pop(4.4, T(400, 502, 'full scan, every time', 'sm warn'))),
+          // 1 A rollup: the same answer, worked out ahead of time
+          G(1, Array.from({ length: 8 }, (_, i) => soon(fly(200 + (i * 53) % 400, 210 + (i * 37) % 220, 810, 322, 1, `<rect class="bar" x="-8" y="-6" width="17" height="12" rx="2"/>`, 0.2 + i * 0.1), 1.6)).join('') +
+               R(700, 230, 220, 170, 'layer', 14) + T(810, 256, 'rollup · monthly_by_store', 'mono tealt') +
+               Array.from({ length: 12 }, (_, i) => `<rect class="cell fillin" style="animation-delay:${1.6 + i * 0.08}s" x="${724 + (i % 4) * 44}" y="${272 + Math.floor(i / 4) * 36}" width="38" height="28" rx="3"/>`).join('') +
+               ['measures: total_revenue', 'dimensions: store_name', 'time_dimension: order_date', 'granularity: month'].map((s, i) => pop(5.5 + i * 0.6, T(700, 432 + i * 26, s, 'mono dim', 'start'))).join('')),
+          // 2 The question is answered from the rollup, without changing the query
+          G(2, bubble(660, 108, 260, ['"revenue by month, store?"'], '', 0.3) + P('M790 158 V226', 'il t thickish') + flowDots('M790 158 V226', 3, 1) +
+               pop(1, T(806, 196, 'answered from the rollup', 'sm tealt', 'start')) +
+               T(180, 566, 'from orders', 'sm dim', 'start') + R(290, 554, 300, 16, 'il d', 6) + `<rect class="emberfill2 grow" style="transition-duration:4s;transition-delay:1.6s" x="292" y="556" width="296" height="12" rx="4"/>` +
+               T(180, 596, 'from the rollup', 'sm dim', 'start') + R(290, 584, 300, 16, 'il d', 6) + `<rect class="tealfill grow" style="transition-duration:.5s;transition-delay:1.6s" x="292" y="586" width="40" height="12" rx="4"/>` +
+               pop(3, T(610, 596, 'same query, just faster', 'sm tealt', 'start'))),
+          // 3 The switch in config.yaml, and why segments stay out
+          G(3, R(180, 650, 64, 32, 'il d fillp', 16) + later(R(180, 650, 64, 32, 'tealfill', 16), 1.6) + fly(196, 666, 228, 666, 0.5, `<circle class="il d fillp" r="11"/>`, 1.4) +
+               T(262, 663, 'enable_rollup', 'mono', 'start') + T(262, 685, 'in config.yaml · off by default', 'sm dim', 'start') +
+               pop(6.5, chip(600, 650, 190, 'segment: completed', 'd') + P('M760 646 L800 612', 'il e dash') + P('M800 600 l12 12 m0 -12 l-12 12', 'il e') +
+                 T(695, 708, "segments can't be pre-aggregated", 'sm warn'))),
+          // 4 A business metric: one measure, on a time axis
+          G(4, `<line class="il d" x1="1480" y1="430" x2="2280" y2="430"/>` + Array.from({ length: 8 }, (_, i) => T(1520 + i * 100, 456, 'W' + (i + 1), 'mono dim')).join('') +
+               soon([['measure', 'total_revenue', 1600, 200], ['time', 'order_date', 1880, 180], ['granularity', 'week', 2130, 130]].map(([k, s, x, w], i) =>
+                 pop(0.3 + i * 0.5, T(x, 108, k, 'sm dim') + chip(x - w / 2, 120, w, s, 't'))).join('') + T(1740, 138, '+', 'ttl dim') + T(2010, 138, '+', 'ttl dim'), 3.2) +
+               later(`<rect class="tealfill" x="1760" y="110" width="240" height="50" rx="10"/>` + T(1880, 141, 'weekly_revenue', 'ontealt'), 3.3) +
+               `<path class="il t thickish draw" pathLength="1" style="transition-delay:3.8s;transition-duration:1.8s" d="M1520 380 L1620 360 L1720 372 L1820 340 L1920 350 L2020 318 L2120 330 L2220 300"/>` +
+               ''),
+          U(4, 4, pop(5.6, T(1880, 506, 'total revenue, by order date, by week', 'sm tealt'))),
+          // 5 The metric file
+          G(5, code(1560, 620, 600, ['# models/metrics/weekly_revenue.yml', 'kind: metric', 'name: weekly_revenue', 'measure: sales.total_revenue', 'ts: sales.order_date', 'granularity: week'], [3, 4, 5]) +
+               pop(1.4, P('M2172 696 h10 v63 h-10', 'il t') + T(2192, 732, 'needed', 'sm tealt', 'start')) +
+               pop(2.4, T(1560, 802, 'optional: dimensions, segments', 'sm dim', 'start'))),
+          // 6 One series, everywhere it is asked for
+          G(6, `<rect class="tealfill" x="1760" y="960" width="240" height="50" rx="10"/>` + T(1880, 991, 'weekly_revenue', 'ontealt') +
+               [['Dashboard', 1480], ['Report', 1780], ['AI agent', 2080]].map(([s, x], i) => P(`M1880 1012 C1880 1060 ${x + 110} 1050 ${x + 110} 1098`, 'il d') + flowDots(`M1880 1012 C1880 1060 ${x + 110} 1050 ${x + 110} 1098`, 2, 1.4) +
+                 pop(0.6 + i * 0.4, R(x, 1100, 220, 130, 'il fillp', 12) + T(x + 20, 1128, s, 'sm', 'start') + spark(x + 24, 1150, 172, 60))).join('') +
+               pop(2.4, T(1880, 1270, 'everyone gets the same series', 'sm tealt')))
+        ].join('');
+      })()
+    },
+    {
+      title: 'Access control',
+      lines: [
+        'Many people use the same data product. Finance sees every store. A store manager sees only their own store. A delivery partner must not see loyalty tiers.',
+        'When someone queries a Vulcan API, the DataOS authorization service checks who they are, and hands Vulcan their tags.',
+        'Your auth extension, a small Python function in plugins, turns those tags into a security context: a group, plus values like a store ID. You register it in config.yaml.',
+        "The access policy finds the rule for that group. A filter keeps only matching rows, like the manager's own store. A mask hides columns, like the loyalty tier.",
+        'The policy says who gets a hidden column. The model says what they see instead, with a column mask expression, like the word hidden.',
+        "Vulcan rewrites the query to obey the rule, then sends it to the engine. A group the policy doesn't name gets no access. And policies apply to the Vulcan APIs, not to someone reading the warehouse directly."
+      ],
+      recap: 'Tags become a group, the group gets a rule, and the rule filters rows and masks columns on every API query.',
+      cam: [[620, 345, 0.8], [620, 345, 0.8], [620, 345, 0.8], [620, 345, 0.8], [620, 345, 0.8], [620, 345, 0.8]],
+      svg: (() => {
+        const L = [['Finance', 'sees every store', 'bean:finance', 'group: finance', 'all stores'],
+          ['Store manager', 'Harbor only', 'bean:store:S1', 'group: store_manager · S1', 'filter: own store only'],
+          ['Delivery partner', 'no loyalty tiers', 'bean:partner', 'group: partner', 'mask: tier hidden']];
+        const ly = i => 160 + i * 140;
+        const ROWS = [['Harbor', 420, 'G'], ['Market', 380, 'S'], ['Station', 310, 'G']];
+        // A persona's view of the data product: store, revenue bar, loyalty tier medal
+        const view = (y, mode) => R(780, y - 58, 400, 116, 'il fillp', 12) + ROWS.map(([s, rev, t], j) => {
+          const ry = y - 44 + j * 32;
+          const row = T(800, ry + 19, s, 'sm', 'start') + `<rect class="tealfill2" x="880" y="${ry + 7}" width="${rev * 0.45}" height="14" rx="3"/>` + T(888 + rev * 0.45, ry + 19, String(rev), 'mono dim', 'start');
+          const tier = mode === 'mask' ? soon(medal(1150, ry + 14, t), 1.6) + later(T(1150, ry + 19, 'hidden', 'sm warn'), 1.8) : medal(1150, ry + 14, t);
+          return `<g class="${mode === 'filter' && j > 0 ? 'fadeaway' : ''}">${row + tier}</g>`;
+        }).join('');
+        return [
+          // 0 Three people, the same data product
+          G(0, L.map(([n, d], i) => person(110, ly(i) + 4, n) + T(110, ly(i) + 56, d, 'sm dim')).join('') +
+               `<line class="rule" x1="40" y1="230" x2="1200" y2="230"/><line class="rule" x1="40" y1="370" x2="1200" y2="370"/>`),
+          U(0, 2, T(980, 74, 'the same data product', 'sm dim') + L.map((_, i) => view(ly(i), '')).join('')),
+          // 1 Authorization: who are you, as tags
+          G(1, node(240, 34, 210, 60, 'Authorization', 'who are you? → tags', 'layer') +
+               L.map((l, i) => flowDots(`M150 ${ly(i)} H246`, 2, 1.2) + pop(0.6 + i * 0.4, chip(250, ly(i) - 13, 190, l[2], 'd'))).join('')),
+          // 2 Auth extension: tags become a security context
+          G(2, node(480, 34, 250, 60, 'Auth extension', 'tags → security context', 'layer') + T(605, 118, 'Python, in plugins/ · registered in config.yaml', 'sm dim') +
+               L.map((l, i) => flowDots(`M444 ${ly(i)} H486`, 2, 1) + pop(1 + i * 0.5, chip(490, ly(i) - 13, 240, l[3], 't'))).join('')),
+          // 3 Access policy: filter rows, mask columns
+          G(3, node(800, 34, 200, 60, 'Access policy', 'filter · mask', 'layer') +
+               L.map((l, i) => flowDots(`M734 ${ly(i)} H776`, 2, 1) + view(ly(i), ['', 'filter', 'mask'][i]) + pop(1.4 + i * 0.3, T(1180, ly(i) - 66, l[4], 'sm tealt', 'end'))).join('')),
+          // 4 The policy says who, the model says what they see
+          U(4, 4, R(1128, ly(2) - 52, 44, 104, 'il t pulse', 8) +
+               code(760, 556, 440, ["column_mask_expressions (loyalty_tier = 'hidden')"]) +
+               T(760, 634, 'policy: who gets it hidden', 'sm dim', 'start') + T(1200, 634, 'model: what they see instead', 'sm dim', 'end')),
+          // 5 Rewritten query to the engine; no group, no access; the warehouse is outside the policy
+          G(5, arrow(1004, 64, 1046, 64, 't') + gear(1070, 64) + T(1092, 69, 'engine', 'sm', 'start') + T(1070, 112, 'query rewritten', 'sm dim') +
+               person(110, 584, 'any other group') + pop(0.8, chip(250, 567, 480, 'no group in the policy → no access', 'e')) +
+               pop(1.2, lockIcon(980, 576, 'il e') + T(1004, 586, 'no access', 'sm warn', 'start')) +
+               pop(6, T(620, 666, 'reading the warehouse directly skips the policy: it covers the Vulcan APIs', 'sm dim')))
+        ].join('');
+      })()
+    },
+    {
+      title: 'Ready for AI agents',
+      lines: [
+        'People ask questions in plain language: what was our coffee income last week? An AI agent turns that into a query on the semantic layer. It only knows what the data product tells it.',
+        'If a measure has only a name, the agent guesses. It might pick order count instead of revenue, or forget to leave out refunds.',
+        'So each semantic model, metric, dimension and measure can carry AI context: instructions, the synonyms people use, caveats about the data, and example questions with their queries.',
+        "The data product's metadata helps too: its description, owners, SLA and business terms in config.yaml, what it is good for and not good for in usage.yml, and the agreement with consumers.",
+        'A member passes the readiness count when it has instructions, synonyms and examples. When 75 percent of members pass, the data product is agent ready.',
+        'And vulcan review runs an AI review of the whole project, when you ask for it. Its findings are advice. It never stops a plan.'
+      ],
+      recap: 'AI agents only know what you write down. Give each member instructions, synonyms and examples, and aim for 75 percent agent ready.',
+      cam: [[640, 330, 0.85], [640, 330, 0.85], [640, 380, 0.85], [640, 400, 0.85], [1070, 316, 1.2], [640, 330, 0.9]],
+      svg: (() => {
+        const M = ['total_revenue', 'order_count', 'store_name', 'product', 'order_date', 'status', 'loyalty_tier'];
+        const my = j => 140 + j * 54;
+        const CTX = [['instructions', 'revenue in euros; use the completed segment'], ['synonyms', 'income, takings, sales amount'],
+          ['caveats', 'today is not complete until stores close'], ['examples', 'revenue for each store last week']];
+        const DOCS = [['config.yaml', 'description, owners,', 'SLA, terms'], ['usage.yml', 'good for,', 'not for'], ['agreement.md', 'agreement', 'with consumers']];
+        return [
+          // 0 A plain-language question, an agent, and a list of members that only have names
+          G(0, person(130, 360) + bubble(60, 170, 400, ['"what was our coffee income last week?"'], '', 0.3) +
+               `<circle class="il t fillp" cx="560" cy="330" r="46"/>` + sparkle(560, 330) + T(560, 400, 'AI agent', 'sm') +
+               `<path class="il d draw" pathLength="1" d="M300 218 C 420 240 500 270 520 296"/>` +
+               R(840, 96, 340, 440, 'il fillp', 14) + T(856, 124, 'sales · members', 'sm dim', 'start') +
+               M.map((m, j) => R(856, my(j), 308, 42, 'box', 8) + T(872, my(j) + 26, m, 'mono', 'start')).join('')),
+          U(0, 0, flowDots('M608 330 C 700 330 760 330 836 330', 3, 2, 'dot', 4)),
+          // 1 With only names, the agent guesses
+          U(1, 1, P(`M606 330 C 700 330 760 ${my(1) + 21} 852 ${my(1) + 21}`, 'il e dash') + P(`M606 330 C 700 330 760 ${my(0) + 21} 852 ${my(0) + 21}`, 'il d dash') +
+               pop(0.4, T(700, 284, '?', 'big warn')) + `<rect class="il e pulse" x="854" y="${my(1) - 2}" width="312" height="46" rx="9"/>` +
+               pop(1, T(560, 446, 'guessed: order_count? refunds in?', 'sm warn'))),
+          // 2 AI context on the measure: instructions, synonyms, caveats, examples
+          G(2, R(60, 450, 600, 196, 'il fillp', 14) + T(80, 478, 'ai_context · total_revenue', 'mono tealt', 'start') +
+               CTX.map(([k, v], i) => pop(5 + i * 1.5, T(80, 517 + i * 34, k, 'sm dim', 'start') + T(196, 517 + i * 34, v, 'mono', 'start'))).join('') +
+               pop(7.4, R(192, 532, 58, 24, 'il t pulse', 5)) +
+               `<path class="il t draw" pathLength="1" style="transition-delay:4.6s" d="M660 470 C 760 470 770 ${my(0) + 21} 852 ${my(0) + 21}"/>` +
+               `<path class="il t thickish draw" pathLength="1" style="transition-delay:11s" d="M606 330 C 700 330 760 ${my(0) + 21} 852 ${my(0) + 21}"/>` +
+               pop(12, P(`M1138 ${my(0) + 21} l5 5 l9 -10`, 'il t'))),
+          // 3 The data product's own documents feed the agent too
+          G(3, DOCS.map(([f, a, b], i) => {
+                 const x = 720 + i * 160;
+                 return pop(0.4 + i * 1.4, fileIcon(x, 578) + T(x + 28, 598, f, 'mono', 'start') + T(x, 630, a, 'sm dim', 'start') + T(x, 648, b, 'sm dim', 'start'));
+               }).join('')),
+          U(3, 3, DOCS.map((_, i) => {
+                 const x = 720 + i * 160, d = `M${x + 10} 572 V560 H700 Q690 560 690 540 V372 Q690 340 610 336`;
+                 return P(d, 'il d dash') + flowDots(d, 2, 2.4, 'dot', 4);
+               }).join('')),
+          // 4 Readiness: instructions, synonyms and examples per member; 75% of members makes the product agent ready
+          G(4, T(1110, 124, 'instr · syn · ex', 'sm dim') +
+               M.map((m, j) => [0, 1, 2].map(k => {
+                 const full = j < 6 || k === 0;
+                 return `<circle class="il d" cx="${1086 + k * 18}" cy="${my(j) + 21}" r="5"/>` + (full ? pop(0.3 + j * 0.15 + k * 0.05, `<circle class="tealfill" cx="${1086 + k * 18}" cy="${my(j) + 21}" r="5"/>`) : '');
+               }).join('') + (j < 6 ? pop(0.6 + j * 0.15, P(`M1140 ${my(j) + 21} l5 5 l9 -10`, 'il t')) : '')).join('') +
+               R(1220, 140, 30, 366, 'il d', 8) + `<rect class="tealfill growy" style="transition-delay:1.4s" x="1224" y="${144 + 358 * 0.14}" width="22" height="${358 * 0.86}" rx="5"/>` +
+               `<line class="il e" x1="1212" y1="${144 + 358 * 0.25}" x2="1258" y2="${144 + 358 * 0.25}"/>` + T(1266, 154 + 358 * 0.25, '75%', 'mono warn', 'start') +
+               soon(T(1266, 340, 'not agent ready', 'sm warn', 'start'), 2.8) + later(T(1266, 340, 'agent ready', 'sm tealt', 'start'), 3) +
+               pop(3, T(1266, 200, '86%', 'ttl tealt', 'start'))),
+          // 5 vulcan review: advice on demand, never a gate
+          G(5, veil(-400, -300, 2400, 1500) + R(340, 190, 600, 280, 'il fillp', 14) + T(364, 226, '$ vulcan review', 'mono tealt', 'start') +
+               pop(0.6, T(364, 262, 'reviewing the whole project …', 'sm dim', 'start')) + pop(1.4, T(364, 290, 'findings: blocker … low', 'sm', 'start')) +
+               pop(3, chip(364, 350, 150, 'vulcan plan', 't') + arrow(520, 363, 600, 363, 't') + chip(604, 350, 110, 'apply', 't') + flowDots('M440 363 H660', 3, 1.6)) +
+               pop(3.4, T(640, 430, 'advice only · it never stops a plan', 'sm dim')))
+        ].join('');
+      })()
+    },
+    {
+      title: 'Incident drill: Thursday morning',
+      lines: [
+        'Thursday morning, the POS vendor ships an update. Prices now arrive in cents: a latte costs 450, not 4.50.',
+        "Vulcan's assertion on silver catches it in the same run. Gold isn't built, and the dashboard keeps Wednesday's correct numbers.",
+        'Without these checks, the bad numbers would reach the dashboard, a store manager would spot them the next day, and the team would rebuild everything.',
+        'Emily, the owner, gets a message that names the model, the check, and the number of bad rows.',
+        'Column lineage traces the wrong amount back to the POS input. Only rows from the new POS version are wrong.',
+        'Emily fixes the logic forward-only, because only the new POS version is wrong. She reads the plan, then restates just Thursday, so Vulcan rebuilds that day and the models after it.',
+        'Table diff shows exactly what changed. Caught in minutes, fixed in hours, and no wrong number ever reached a dashboard.'
+      ],
+      recap: 'Caught by an assertion, reported to the owner, traced with lineage, fixed forward-only, restated for one day, and proved with table diff.',
+      cam: [[220, 200, 1.3], [620, 220, 0.95], [900, 150, 1.05], [330, 560, 1.2], WIDE, [940, 510, 1.0], [640, 400, 0.75]],
+      svg: [
+        G(0, register(40, 120, '450', 'warn pulse') + T(140, 106, 'was 4.50 yesterday', 'sm dim') + P('M250 220 H896', 'il d dash') +
+             tank(470, 220, 140, 110, 'Silver', 'orders') + tank(750, 220, 140, 110, 'Gold', 'daily_sales', 't') +
+             screenBox(900, 150, 220, 140, 'Revenue · Wed') + T(1104, 240, '1,240', 'ttl', 'end')),
+        U(0, 0, gate(610, 220, true)),
+        G(1, gate(610, 220, false) + fly(250, 220, 560, 220, 2.2, R(-40, -15, 80, 30, 'badrow', 15) + T(0, 5, '450', 'mono warn')) +
+             veil(670, 140, 160, 170) + pop(1.6, shield(1010, 330, 't')) + pop(1.8, T(1010, 380, 'keeps Wednesday', 'sm tealt'))),
+        G(2, R(680, 30, 560, 60, 'il e', 12) + T(700, 56, 'without checks:', 'sm warn', 'start') + T(700, 78, 'found Friday by a store manager · full rebuild', 'sm', 'start')),
+        G(3, draw('M610 270 C610 420 330 420 300 540', 'il e') + person(160, 640, 'Emily') + phone(200, 540) +
+             bubble(280, 540, 300, ['audit failed: orders', 'check: price 0 to 100', '6 bad rows · 06:01'], 'warn')),
+        G(4, draw('M1010 300 Q1010 330 900 330 H140 V266', 'il t thickish') + flowDots('M1010 300 Q1010 330 900 330 H140 V266', 3, 3, 'dot', 6) +
+             pop(1.2, R(380, 344, 360, 34, 'chipf', 17) + T(560, 366, 'orders.amount ← pos_orders.amount', 'mono tealt'))),
+        G(5, R(620, 450, 300, 120, 'il fillp', 12) + T(640, 482, 'vulcan plan', 'mono tealt', 'start') + T(640, 512, 'orders: forward-only fix', 'sm', 'start') +
+             T(640, 540, 'restate Thursday + children', 'sm', 'start') +
+             ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((d, i) => R(960 + i * 64, 470, 56, 56, 'il fillp', 8) +
+               (i === 3 ? `<rect class="tealfill fillin" style="animation-delay:1s" x="${963 + i * 64}" y="473" width="50" height="50" rx="6"/>` : '') +
+               T(988 + i * 64, 504, d, 'sm' + (i === 3 ? ' ontealt' : ''))).join('') + T(1116, 552, 'only Thursday rebuilds', 'sm tealt')),
+        G(6, T(620, 596, 'table diff', 'mono dim', 'start') +
+             table(620, 606, 110, 30, ['order', 'before', 'after'], [['latte', '450.00', '4.50'], ['espresso', '300.00', '3.00']]) +
+             [['caught in minutes', 0.4], ['fixed in hours', 0.8], ['no wrong number shown', 1.2]].map(([s, d], i) => pop(d, chip(990, 596 + i * 38, 250, s, 't'))).join(''))
+      ].join('')
+    },
+    {
+      title: 'Your daily work with Vulcan',
+      lines: [
+        "Let's put it all together. Here's what changes in your daily work with Vulcan.",
+        'Faster detection: the linter and unit tests before anything is built, blocking assertions in every run, quality checks for patterns, and messages that go straight to the owner.',
+        'Faster recovery: layers that keep bad data out of gold, lineage to the source, plans that rebuild only what a fix touches, restatement of single days, and table diff to prove the fix.',
+        'And one definition everywhere: a measure defined once reaches every dashboard, API and AI agent, and so does every correction.',
+        'When the project is ready, your team deploys it to a DataOS environment, with the deployment block in config.yaml. From then on, Vulcan builds on schedule and serves the APIs.'
+      ],
+      recap: 'Vulcan shortens the time to detect and the time to recover, and gives everyone one definition of every number.',
+      cam: [[700, 280, 0.68], [320, 290, 1.3], [1080, 290, 1.3], [700, 710, 1.15], [720, 1110, 0.95]],
+      svg: (() => {
+        const tile = (x, y, w, h, icon, a, b, d) => pop(d, R(x, y, w, h, 'box', 12) + `<g transform="translate(${x + 32} ${y + h / 2})">${icon}</g>` +
+          T(x + 62, y + h / 2 - 4, a, 'sm', 'start') + T(x + 62, y + h / 2 + 16, b, 'sm dim', 'start'));
+        const panel = (x, t, k) => R(x, 110, 560, 360, 'il fillp', 16) + T(x + 30, 150, t, 'ttl tealt', 'start') + T(x + 530, 150, k, 'mono dim', 'end') +
+          T(x + 30, 194, 'before', 'sm dim', 'start') + R(x + 120, 182, 400, 14, 'emberfill2', 4);
+        const after = (x, d) => T(x + 30, 222, 'with Vulcan', 'sm dim', 'start') + `<rect class="tealfill grow" style="transition-delay:${d}s" x="${x + 120}" y="210" width="110" height="14" rx="4"/>`;
+        const ICON = {
+          lens: lens(0, 0), shield: shield(0, -2, 't'), trend: trend(0, 0), env: env('il t'),
+          layers: R(-14, -12, 28, 8, 'il t', 2) + R(-14, -2, 28, 8, 'il t', 2) + R(-14, 8, 28, 8, 'il t', 2),
+          lineage: P('M-14 10 C -4 10 -4 -10 14 -10', 'il t') + '<circle class="dot" cx="-14" cy="10" r="4"/><circle class="dot" cx="14" cy="-10" r="4"/>',
+          plan: fileIcon(-10, -13, 'il t'), day: R(-14, -12, 28, 26, 'il t', 4) + P('M-14 -4 h28', 'il t') + '<rect class="tealfill" x="-4" y="1" width="8" height="8" rx="2"/>',
+          diff: R(-15, -12, 13, 26, 'il t', 3) + R(2, -12, 13, 26, 'il t', 3) + P('M-11 -2 h5 M6 -2 h5 M6 6 h5', 'il e')
+        };
+        return [
+          // 0 Time to detect and time to recover, before
+          G(0, T(700, 64, 'With Vulcan', 'big') + panel(40, 'Faster detection', 'MTTD') + panel(800, 'Faster recovery', 'MTTR')),
+          // 1 What catches problems sooner
+          G(1, [['lens', 'linter and unit tests', 'before a build'], ['shield', 'blocking assertions', 'in every run'], ['trend', 'quality checks', 'for patterns'], ['env', 'messages', 'straight to the owner']].map(([k, a, b], i) =>
+                 tile(70 + (i % 2) * 260, 250 + Math.floor(i / 2) * 100, 240, 84, ICON[k], a, b, 0.4 + i * 1.6)).join('') + after(40, 7.5)),
+          // 2 What fixes problems faster
+          G(2, [['layers', 'layers', 'keep bad data out of gold'], ['lineage', 'column lineage', 'back to the source'], ['plan', 'plans rebuild', 'only what a fix touches'], ['day', 'restate', 'single days'], ['diff', 'table diff', 'proves the fix']].map(([k, a, b], i) =>
+                 tile(830 + (i % 2) * 260, 240 + Math.floor(i / 2) * 76, 250, 64, ICON[k], a, b, 0.4 + i * 1.4)).join('') + after(800, 8)),
+          // 3 One definition reaches everyone, and so does every fix
+          G(3, `<rect class="tealfill" x="560" y="530" width="280" height="56" rx="12"/>` + T(700, 564, 'total_revenue · defined once', 'ontealt') +
+               [['every dashboard', 460, dashIcon(420, 712)], ['every API', 700, R(660, 712, 80, 56, 'il t fillp', 8) + T(700, 746, '{ API }', 'mono tealt')],
+                ['every AI agent', 940, `<circle class="il t fillp" cx="940" cy="740" r="30"/>` + sparkle(940, 740)]].map(([s, x, icon], i) =>
+                 P(`M700 588 C700 650 ${x} 640 ${x} 704`, 'il d') + flowDots(`M700 588 C700 650 ${x} 640 ${x} 704`, 2, 1.6) +
+                 pop(0.5 + i * 0.4, icon + T(x, 800, s, 'sm'))).join('') +
+               soon([460, 700, 940].map((x, i) => fly(700, 588, x, 690, 1.2, R(-22, -11, 44, 22, 'il e fillp', 11) + T(0, 5, 'fix', 'mono warn'), 5.2 + i * 0.2)).join(''), 7)),
+          // 4 Deploy to DataOS: builds on schedule, serves the APIs
+          G(4, R(240, 1040, 280, 120, 'il fillp', 14) + folderIcon(264, 1066) + T(304, 1086, 'Vulcan project', 'sm', 'start') + T(264, 1132, 'config.yaml: deployment', 'mono dim', 'start') +
+               `<path class="il t thickish draw" pathLength="1" d="M524 1100 H636"/>` + flowDots('M524 1100 H636', 2, 1.2) +
+               pop(1.2, R(640, 1010, 540, 180, 'layer', 16) + logo(664, 1030, 0.8) + T(1160, 1052, 'environment', 'sm dim', 'end') +
+                 clock(744, 1124) + T(792, 1130, 'builds on schedule', 'sm', 'start') +
+                 R(966, 1110, 46, 28, 'il t', 6) + T(989, 1129, 'API', 'mono tealt') + T(1022, 1130, 'serves the APIs', 'sm', 'start')))
+        ].join('');
+      })()
+    }
+  ];
+  const N_SCENES = scenes.length;
+  scenes.forEach(s => { if (s.recap) s.lines.push('In short: ' + s.recap); });
+
+  const mc = (scene, short, prompt, options) => ({ kind: 'mc', scene, short, prompt, options: options.map(([text, fb, correct]) => ({ text, fb, correct: !!correct })) });
+  const quizzes = [
+    {
+      kind: 'predict', scene: 1,
+      prompt: 'Before we go on: two dashboards show different revenue for the same week, and no error appears anywhere. What is the most likely cause?',
+      options: [
+        { text: 'The warehouse lost some data', fb: 'Lost data usually shows up as an error or a gap. Here, nothing failed.' },
+        { text: 'Each tool keeps its own copy of the revenue definition, and the copies drifted apart', correct: true, fb: "That's drift: copies of one definition stop agreeing, with no error." },
+        { text: 'One dashboard is slower than the other', fb: "Speed doesn't change the number. Two definitions do." }
+      ]
+    },
+    mc(1, 'What a data product is', 'Which of these is a data product?', [
+      ['One table in the warehouse', 'A table alone has no owner, contract or rules attached.'],
+      ['A managed unit with an owner, a contract, quality and access rules, and named consumers', 'It keeps the data, its meaning, its rules and its owner together.', 1],
+      ['A dashboard', 'A dashboard is one consumer of a data product.']]),
+    mc(2, 'Where transforms run', 'Where does Vulcan run your transformations?', [
+      ['On a separate Vulcan cluster, after copying the data', 'Vulcan does not copy your data out.'],
+      ['In the database you already use', 'Vulcan sends SQL to your engine. The data stays in your warehouse.', 1],
+      ['In the browser', 'Nothing runs in the browser.']]),
+    mc(2, 'MTTD and MTTR', 'A bad price arrives at 6:00. Emily hears about it at 6:01, and the data is correct again at 11:00. Which statement is right?', [
+      ['MTTD is one minute, and MTTR is about five hours', 'MTTD is the time until someone knows. MTTR is the time until the data is correct again.', 1],
+      ['MTTD is five hours, and MTTR is one minute', "It's the other way round: detection came first, after one minute."],
+      ['Both are five hours', 'Detection took one minute. Recovery took about five hours.']]),
+    mc(3, 'Folders', 'You want a check written in your own SQL that returns bad rows. Which folder does it go in?', [
+      ['<code>tests/</code>', 'tests/ holds unit tests on fixed rows.'],
+      ['<code>audits/</code>', 'A standalone assertion is a query in audits/.', 1],
+      ['<code>signals/</code>', 'signals/ holds readiness checks in Python.']]),
+    mc(3, 'Which layer consumers read', 'A partner team asks for access to Bean Street sales. Which schema do you give them?', [
+      ['<code>raw</code>', 'Bronze holds raw inputs. It is internal.'],
+      ['<code>bean_internal</code>', 'Silver holds clean tables, but they are not for consumers.'],
+      ['<code>bean_street</code>', 'Gold, in bean_street, is the only layer for consumers.', 1]]),
+    mc(4, 'Where the run order lives', 'You add a model that reads daily sales. Where do you write that it runs after daily sales?', [
+      ['In a job schedule', 'Vulcan has no job schedule to keep.'],
+      ['In <code>config.yaml</code>', 'config.yaml holds project settings, not the run order.'],
+      ['Nowhere. Vulcan finds it from the FROM clause.', 'Vulcan reads FROM and JOIN, and places the model in the graph by itself.', 1]]),
+    mc(4, 'What runs after a change', 'You change the customers model. Which models are built again?', [
+      ['Every model in the project', 'Only the models after the change are built again.'],
+      ['Customers, and the models that read from it, directly or through others', 'Vulcan follows the graph from customers to everything after it.', 1],
+      ['Only customers', 'Its children read it, so they must be built again too.']]),
+    mc(4, 'A loop in the graph', 'Model A reads model B, and model B reads model A. What happens?', [
+      ['Vulcan builds them in alphabetical order', 'There is no valid order to pick.'],
+      ['Vulcan shows an error, because a graph cannot have a loop', 'A loop has no first step, so Vulcan cannot find an order.', 1],
+      ['Vulcan builds each one twice', 'Vulcan does not guess. It stops with an error.']]),
+    mc(5, 'Complete intervals only', 'At 10:30 on October 6, which day does a daily model build?', [
+      ['October 6', 'Today is not complete yet, so it is not built.'],
+      ['October 5', 'Vulcan builds only complete intervals. A daily model gets yesterday.', 1],
+      ['Both days', 'Only complete intervals are built.']]),
+    mc(5, 'Mixing crons', 'daily_sales is built once a day, after the day ends. A new model runs every hour and reads daily_sales. What happens when it runs at 10:00 on October 6?', [
+      ['It gets the sales for October 6 so far', 'daily_sales has nothing for October 6 yet. That day is only built after it ends.'],
+      ['It finds no data for October 6, the hour is marked done, and it is never filled in later', 'When daily_sales builds October 6 the next day, Vulcan does not rebuild those hours, because they are already marked done. The rule: a model should not run more often than the models it reads.', 1],
+      ['Vulcan waits until daily_sales has October 6', 'Vulcan does not wait here. It builds the hour with what is there, which is nothing.']]),
+    mc(5, 'Changing engines', 'Your team moves from Postgres to Snowflake. What do you change in your SQL models?', [
+      ['Rewrite every SQL model in Snowflake SQL', 'No need. Vulcan translates your SQL to the Snowflake dialect.'],
+      ['Nothing. Vulcan translates them to the new dialect.', 'You keep one dialect in your files, and Vulcan writes the engine version. What you do change is the connection in config.yaml.', 1],
+      ['Add the Snowflake dialect to each model', 'The dialect is set once for the project, in config.yaml. The models stay as they are.']]),
+    mc(6, 'A late store, no signal', "Harbor and Market send today's orders on time. Station sends its orders two hours late. The orders model has no signal. What happens to today?", [
+      ['Vulcan waits for Station', 'Without a signal, Vulcan cannot tell that Station is late. The cron only says the day is due.'],
+      ["Vulcan builds today with only Harbor's and Market's orders, and marks the day as done", "Revenue for today looks too low. And because the day is marked done, Vulcan won't build it again when Station's orders arrive. A signal would make the day wait for Station.", 1],
+      ['The run fails', "Nothing fails. Vulcan builds the day with Station's orders missing, which is worse, because nobody notices."]]),
+    mc(6, 'Signal or later cron', 'Why use a signal instead of just running the model later?', [
+      ['A signal checks the source itself, so it waits exactly as long as needed', 'A fixed time can still be too early. A signal looks at the source.', 1],
+      ['Signals make the model run faster', 'Signals decide when, not how fast.'],
+      ['Crons cannot be changed', 'Crons can change. They still cannot see whether data is ready.']]),
+    mc(6, 'Two signals', 'A model has two signals. When is a day ready?', [
+      ['When either signal says yes', 'One yes is not enough.'],
+      ['When all signals say yes', 'Every signal must agree.', 1],
+      ['When the first signal says yes', 'Order does not matter. All must agree.']]),
+    {
+      kind: 'classify', scene: 7, short: 'Pick the kind',
+      prompt: 'Match each table to the kind that fits it best.',
+      choices: [['T', 'By time range'], ['K', 'By unique key'], ['S', 'SCD type 2']],
+      items: [['Daily orders that never change later', 'T'], ['Orders whose status can change, latest only', 'K'], ['Loyalty tiers, with every past tier kept', 'S'], ['Click events with a timestamp', 'T']],
+      fbOk: 'Time range for events by date, unique key to keep the latest version, SCD type 2 to keep history.',
+      fbNo: 'Ask: do rows arrive by date and never change? Do they change, but I need only the latest? Or do I need every past version?'
+    },
+    mc(7, 'A kind with no table', 'Which kind stores no table at all?', [
+      ['SEED', 'A seed loads a CSV into a table.'],
+      ['VIEW', 'A view is computed at the time of each query.', 1],
+      ['FULL', 'A full model rebuilds and stores its table every run.']]),
+    mc(8, 'Where Python runs', 'Where does the function of a Python model run?', [
+      ['Inside the warehouse', 'Only engine DataFrames keep the work in the warehouse.'],
+      ["In Vulcan's runner", 'The function runs in the runner.', 1],
+      ['On your laptop', 'It runs in the runner when Vulcan builds the model.']]),
+    mc(8, 'pandas on a big table', 'A pandas Python model reads 50 million rows on Postgres. What happens?', [
+      ['The engine does the work, so it is fast', 'With pandas, the rows come to the runner.'],
+      ['All rows travel to the runner memory, and are written back in many statements', 'Use an engine DataFrame, or give the data in parts, for big tables.', 1],
+      ['Vulcan refuses to run it', 'It runs, but slowly, and the runner can run out of memory.']]),
+    mc(8, 'Editing Python', 'You change one line in a Python model. Which category does the change get?', [
+      ['NON_BREAKING', 'Vulcan cannot compare Python code.'],
+      ['BREAKING', 'Every edit to Python code counts as breaking, so the model and its children rebuild.', 1],
+      ['METADATA', 'A code change is never metadata.']]),
+    {
+      kind: 'classify', scene: 9, short: 'Change categories',
+      prompt: 'Sort each change: breaking, non-breaking, or metadata?',
+      choices: [['B', 'Breaking'], ['N', 'Non-breaking'], ['M', 'Metadata']],
+      items: [['Add a new column', 'N'], ['Add a new filter in WHERE', 'B'], ['Change only the description', 'M'], ['Change amount to amount × 1.23', 'B'], ['Change the owner', 'M']],
+      fbOk: 'Only new columns are non-breaking. A description or an owner is metadata. Every other SQL edit is breaking.',
+      fbNo: 'Ask: did I only add columns? Then it is non-breaking. Only a description or an owner? Metadata. Anything else is breaking.'
+    },
+    mc(9, 'Bad source data', 'The POS system sent wrong data for two days. Your logic is correct. What do you do?', [
+      ['Make a breaking change', 'The logic is fine. Only the data for two days is wrong.'],
+      ['Restate those two days', 'A restatement rebuilds only the days you pick, and their children.', 1],
+      ['Rebuild the whole project', 'No need. Restate only what was wrong.']]),
+    mc(9, 'Forward-only', 'You make a breaking change forward-only. What happens to the old days?', [
+      ['They are rebuilt with the new logic', 'That is a normal breaking change.'],
+      ['They stay as they are, and only new days use the change', 'Forward-only keeps old rows and applies the change to new intervals.', 1],
+      ['They are deleted', 'Nothing is deleted.']]),
+    mc(10, 'A missing order ID', 'The POS system sends an order with no order ID. Where does Vulcan stop it?', [
+      ['At the dashboard', 'It is stopped long before that.'],
+      ['At the input pos_orders, before silver runs', 'The not null assertion on the input fails, so its children do not run.', 1],
+      ['In the unit tests', 'Unit tests use fixed rows, not real data.']]),
+    mc(10, 'Unit tests', 'When do unit tests run, and on what data?', [
+      ['In every run, on real data', 'That describes assertions.'],
+      ['During the plan, on fixed rows you write in the test', 'A failed test stops the plan before anything is built.', 1],
+      ['After deploy, on a sample', 'Unit tests run during the plan.']]),
+    mc(10, 'A 75 percent drop', 'Orders drop 75 percent on one day. Which check finds it, and does it stop the data?', [
+      ['A blocking assertion, and it stops the children', 'Assertions check rules for each row. A drop in volume is a pattern.'],
+      ['A data quality check. It records a result, but does not stop the data.', 'Quality checks find patterns, and record pass, warn or fail.', 1],
+      ['A unit test, during the plan', 'Unit tests use fixed rows, not real data.']]),
+    mc(11, 'Who gets the owner message', 'For which event does the model owner also get a message?', [
+      ['run_failure', 'Run failures go to the project targets only.'],
+      ['audit_failure', 'Only assertion failures go to the owner.', 1],
+      ['plan_change', 'Plan changes go to the project targets only.']]),
+    mc(11, 'An unlisted event', 'No target lists apply_failure. A plan fails to apply. Who hears about it?', [
+      ['The model owner', 'Owners only get assertion failures.'],
+      ['Nobody', 'Add the event to the notifyOn list of a target to get a message.', 1],
+      ['Every target', 'Targets get only the events they list.']]),
+    mc(12, 'Grain', 'Each row of daily sales is one store, product, day, status and loyalty tier. What is its grain?', [
+      ['<code>store_id</code>', 'One store has many rows.'],
+      ['<code>order_date</code>', 'Many rows share the same day.'],
+      ['All five columns together', 'Together they make each row unique. That is a composite grain.', 1]]),
+    {
+      kind: 'classify', scene: 12, short: 'Dimension or measure?',
+      prompt: 'Sort each field: is it a dimension or a measure?',
+      choices: [['D', 'Dimension'], ['M', 'Measure']],
+      items: [['store name', 'D'], ['total revenue', 'M'], ['product', 'D'], ['order count', 'M'], ['order date', 'D'], ['average order value', 'M']],
+      fbOk: 'Dimensions are how you group. Measures are what you add up.',
+      fbNo: 'Ask: do I group by it, or add it up? Group by means dimension. Add up means measure.'
+    },
+    mc(12, 'A saved filter', 'Finance always wants completed orders only. Which member saves that filter for everyone?', [
+      ['A dimension', 'A dimension is a way to group.'],
+      ['A segment', 'A segment is a saved filter anyone can add to a question.', 1],
+      ['A join', 'A join connects two semantic models.']]),
+    mc(13, 'A stock measure', 'Active members is a stock with period treatment last. Someone asks for active members in September. What is the answer?', [
+      ['The sum of all 30 days', 'That gives 36,000, thirty times too large.'],
+      ['The value on 30 September', 'A stock is a level at one point in time.', 1],
+      ['The average of the first and last day', 'Period treatment last takes the last day.']]),
+    mc(13, 'A ratio measure', 'What is the right average order value for the month?', [
+      ['The average of the daily averages', 'That gives quiet days the same weight as busy days.'],
+      ["The month's total revenue divided by its order count", 'A ratio is worked out again from its parts.', 1],
+      ['The sum of the daily averages', 'That is not an average at all.']]),
+    mc(14, 'Who uses a rollup', 'A dashboard asks for revenue by month and store, and a matching rollup exists. What must the dashboard change?', [
+      ['Nothing. Vulcan answers from the rollup.', 'Consumers query as usual. Vulcan decides when a rollup can serve it.', 1],
+      ['Query the rollup table by name', 'No need. Matching questions go to the rollup automatically.'],
+      ['Add a segment to the rollup', 'Segments cannot be inside a rollup. And no change is needed.']]),
+    mc(14, 'Rollups by default', 'You add a rollups block to a semantic model and change nothing else. What happens?', [
+      ['Vulcan builds the rollup on the next run', 'Rollups are off by default.'],
+      ['Nothing is built until enable_rollup is turned on in config.yaml', 'Turn on enable_rollup first.', 1],
+      ['The plan fails', 'The plan does not fail. Rollups are just off.']]),
+    mc(14, 'What a metric adds', 'What does a business metric, like weekly revenue, add to a measure?', [
+      ['A filter', 'That is a segment.'],
+      ['A time column and a granularity', 'A metric puts one measure on a time axis.', 1],
+      ['A join', 'Joins belong to semantic models.']]),
+    mc(15, 'No known group', "Joe's tags don't match any group that the extension knows. What does Joe see?", [
+      ['All rows', 'No group means no rule, and no rule means no access.'],
+      ['Only his own store', 'A store filter needs a store ID from the extension. Joe has none.'],
+      ['Nothing. Vulcan refuses the query.', "A group that isn't in the policy gets no access.", 1]]),
+    mc(15, 'A masked column', 'A delivery partner reads daily sales through the API. What do they see in the loyalty tier column?', [
+      ['The real tier', 'The policy masks it for partners.'],
+      ['The word hidden', 'The column mask expression in the model replaces the value.', 1],
+      ['An error', 'The query works. Only the column is masked.']]),
+    mc(15, 'Reading the warehouse', 'An analyst reads daily sales directly in the warehouse. Does the access policy apply?', [
+      ['Yes, always', 'Policies apply only to the Vulcan APIs.'],
+      ['No. Policies apply to the Vulcan APIs.', 'Give consumers access through the APIs.', 1],
+      ['Only for masked columns', 'None of the policy applies outside the APIs.']]),
+    mc(16, 'Helping the agent', 'An AI agent picks order count when people ask for income. What helps most?', [
+      ['A longer column name', 'Names alone still leave the agent guessing.'],
+      ['Synonyms and instructions on total revenue', 'Synonyms tell the agent the other names people use.', 1],
+      ['A faster engine', 'Speed does not change which measure the agent picks.']]),
+    mc(16, 'Agent ready', 'What share of members must pass, with instructions, synonyms and examples, for agent ready?', [
+      ['34 percent', '34 to 74 percent is needs work.'],
+      ['50 percent', 'Still needs work.'],
+      ['75 percent', '75 percent or more is agent ready.', 1]]),
+    mc(16, 'vulcan review', 'Does vulcan review stop a plan?', [
+      ['Yes, for blocker findings', 'Its findings are advice only.'],
+      ['No. It runs when you ask, and its findings are advice.', 'It never stops a plan.', 1],
+      ['Only in production', 'It never stops a plan.']]),
+    {
+      kind: 'order', scene: 17, short: 'Incident response',
+      prompt: "Put Emily's response in order. Tap each step.",
+      items: ['Restate Thursday', 'Assertion on silver fails', 'Prove the fix with table diff', 'Trace it with column lineage'],
+      answer: ['Assertion on silver fails', 'Trace it with column lineage', 'Restate Thursday', 'Prove the fix with table diff'],
+      fbOk: 'Detect, trace, correct, then prove.',
+      fbNo: 'Start where Vulcan catches it: the assertion. Then trace, correct, and prove.'
+    },
+    mc(17, 'Finding the source', 'Which part of Vulcan finds the source column of a wrong number?', [
+      ['Column lineage', 'Lineage shows the path of each column, from input to gold.', 1],
+      ['Signals', 'Signals decide when data is ready.'],
+      ['Seeds', 'Seeds load small CSV files.']]),
+    mc(18, 'A team without tiers', 'A new team needs sales, but must not see the loyalty tier. What do you do?', [
+      ['Copy the table without the column', 'A copy can drift. One table serves every group.'],
+      ['Add a rule with a mask to the access policy', 'The policy masks the column for that group.', 1],
+      ['Remove the column', 'Other teams still need it.']]),
+    mc(18, 'Half a day late', 'The source sends its data half a day late. What keeps half a day out of gold?', [
+      ['A signal', 'The signal waits until the source is ready.', 1],
+      ['A later cron', 'A fixed time can still be too early.'],
+      ['A unit test', 'Unit tests check logic on fixed rows.']]),
+    mc(18, 'Removing a column', 'You must remove a column. How do you find out which measures use it?', [
+      ['Search every dashboard', 'No need.'],
+      ['The plan stops and names the measure that reads it', 'The plan shows the effect before you apply.', 1],
+      ['Wait for a user to complain', 'The plan tells you first.']])
+  ];
+  const SCORED = quizzes.map((_, i) => i).filter(i => quizzes[i].kind !== 'predict');
+  const EXPLAIN = false;
+
+  const FULL = [
+    ...scenes.flatMap((_, s) => [{ type: 'scene', s }, ...quizzes.map((q, i) => ({ q, i })).filter(x => x.q.scene === s).map(x => ({ type: 'quiz', q: x.i }))]),
+    { type: 'results' }
+  ];
+  const QUIZ_ONLY = [...SCORED.map(q => ({ type: 'quiz', q })), { type: 'results' }];
+
+  // ---------- DOM ----------
+  const $ = id => document.getElementById(id);
+  const screen = $('screen'), stage = $('stage'), panel = $('panel'), caption = $('caption');
+  const playBtn = $('playBtn'), startBtn = $('startBtn'), voiceBtn = $('voiceBtn'), ccBtn = $('ccBtn'), rateSel = $('rate');
+  const chaptersEl = $('chapters');
+
+  $('scenes').innerHTML = titleScene + scenes.map((s, i) => `<g class="scene" id="sc-${i}" hidden><g class="cam">${s.svg}</g>${i ? chapterTag(i - 1, N_SCENES - 1, s.title) : ''}${s.recap ? recapCard(s.lines.length - 1, s.recap) : ''}</g>`).join('');
+
+  const ICON_PLAY = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 3l12 7-12 7z" fill="currentColor"/></svg>';
+  const ICON_PAUSE = '<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="3" width="4" height="14" rx="1" fill="currentColor"/><rect x="12" y="3" width="4" height="14" rx="1" fill="currentColor"/></svg>';
+
+  // ---------- State ----------
+  let TL = FULL, pos = -1, line = 0, playing = false, gen = 0;
+  let muted = false, rate = 1;
+  const first = {};       // q -> true/false on first attempt
+  const answered = {};    // q -> true once finished
+  let onRetry = null;     // retry handler for the question on screen
+
+  // ---------- Voice ----------
+  const tts = 'speechSynthesis' in window ? window.speechSynthesis : null;
+  let voice = null;
+  // Female voices, softest-sounding first, across Edge, Chrome, Safari/macOS and Windows (fallback only)
+  const FEMALE = ['Ava', 'Emma', 'Jenny', 'Aria', 'Michelle', 'Sonia', 'Libby', 'Natasha', 'Allison', 'Samantha',
+    'Serena', 'Susan', 'Google UK English Female', 'Google US English', 'Karen', 'Moira', 'Tessa', 'Victoria', 'Zoe', 'Zira', 'Hazel'];
+  const MALE = /\b(male|daniel|alex|fred|david|mark|guy|ryan|thomas|tom|aaron|arthur|oliver|gordon|rishi|eddy|reed|rocko|grandpa)\b/i;
+  const pickVoice = () => {
+    if (!tts) return;
+    const en = tts.getVoices().filter(v => /^en([-_]|$)/i.test(v.lang) && !MALE.test(v.name) || /Female/.test(v.name));
+    const rank = v => {
+      const i = FEMALE.findIndex(n => v.name.includes(n));
+      const natural = /natural|neural|premium|enhanced/i.test(v.name) ? 0 : 100;
+      return natural + (i < 0 ? 50 : i);
+    };
+    voice = en.sort((a, b) => rank(a) - rank(b))[0] || null;
+  };
+  if (tts) { pickVoice(); tts.onvoiceschanged = pickVoice; }
+
+  let clip = null;
+  function say(text, g, onDone) {
+    let fired = false, wd;
+    const plain = text.replace(/<[^>]+>/g, '');
+    const est = Math.max(1800, plain.split(/\s+/).length * 430) / rate;
+    const finish = () => { if (fired) return; fired = true; clearTimeout(wd); if (g === gen && onDone) onDone(); };
+    if (muted) { wd = setTimeout(finish, est + 300); return; }
+    if (clip) clip.pause();
+    if (tts) tts.cancel();
+    const a = clip = new Audio(`audio/${hashText(plain)}.mp4`);
+    a.playbackRate = rate;
+    a.onended = finish;
+    let fellBack = false;
+    const fallback = () => { if (fellBack || fired || g !== gen) return; fellBack = true; a.onended = null; speakTts(plain, g, finish, est, w => { wd = w; }); };
+    a.onerror = fallback;
+    a.play().then(() => { wd = setTimeout(finish, (a.duration ? a.duration * 1000 / rate : est * 2) + 2500); }).catch(fallback);
+  }
+  function speakTts(plain, g, finish, est, setWd) {
+    if (!tts) { setWd(setTimeout(finish, est + 300)); return; }
+    let wd;
+    try {
+      tts.cancel();
+      const u = new SpeechSynthesisUtterance(plain);
+      if (voice) u.voice = voice;
+      u.lang = voice ? voice.lang : 'en-US';
+      u.rate = rate * 0.92;
+      u.pitch = 1.05;
+      u.volume = 0.9;
+      u.onend = finish;
+      u.onerror = finish;
+      setTimeout(() => { if (g === gen) tts.speak(u); }, 60);
+      wd = setTimeout(finish, est * 2.2 + 2500); // fallback if the browser never reports the end
+    } catch (e) { wd = setTimeout(finish, est); }
+    setWd(wd);
+  }
+  const hush = () => { gen++; if (clip) clip.pause(); if (tts) tts.cancel(); };
+
+  // ---------- Playback ----------
+  // Count numbers up and start one-shot motions when their line is reached
+  const fmtN = (v, d) => v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+  function kick(el) {
+    el.querySelectorAll('[data-count]').forEach(t => {
+      const a = +t.dataset.from, b = +t.dataset.count, d = +t.dataset.dec || 0, t0 = performance.now();
+      const tick = now => {
+        const k = Math.min(1, (now - t0) / 1400), e = 1 - Math.pow(1 - k, 3);
+        t.textContent = fmtN(a + (b - a) * e, d);
+        if (k < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+    el.querySelectorAll('[begin="indefinite"]').forEach(m => { try { m.beginElement(); } catch (e) { } });
+  }
+  const reveal = (s, l) => {
+    const sc = document.getElementById(`sc-${s}`);
+    sc.querySelectorAll('[data-s]').forEach(el => {
+      const on = +el.dataset.s <= l && (el.dataset.u === undefined || l <= +el.dataset.u);
+      if (on && !el.classList.contains('on')) kick(el);
+      el.classList.toggle('on', on);
+    });
+    const cam = scenes[s].cam;
+    if (cam) {
+      const [x, y, z] = cam[Math.max(0, Math.min(l, cam.length - 1))];
+      sc.querySelector('.cam').style.transform = `translate(${480 - x * z}px, ${270 - y * z}px) scale(${z})`;
+    }
+  };
+  const showScene = s => {
+    document.querySelectorAll('#scenes > .scene').forEach(g => g.toggleAttribute('hidden', g.id !== (s === 'title' ? 'sc-title' : `sc-${s}`)));
+  };
+  const setCaption = t => { caption.innerHTML = t; };
+
+  function speakLine() {
+    const it = TL[pos], sc = scenes[it.s];
+    reveal(it.s, line);
+    setCaption(esc(sc.lines[line]));
+    updateProgress();
+    const g = ++gen;
+    say(sc.lines[line], g, () => {
+      setTimeout(() => {
+        if (g !== gen || !playing) return;
+        line++;
+        if (line >= sc.lines.length) goTo(pos + 1, true);
+        else speakLine();
+      }, 450);
+    });
+  }
+
+  function goTo(p, auto = true) {
+    hush();
+    onRetry = null;
+    pos = p;
+    const it = TL[p];
+    $('starts').hidden = true;
+    if (it.type === 'scene') {
+      screen.classList.remove('is-panel');
+      stage.toggleAttribute('hidden', false);
+      panel.hidden = true;
+      showScene(it.s);
+      line = 0;
+      reveal(it.s, -1);
+      playing = auto;
+      if (auto) speakLine(); else { reveal(it.s, 0); setCaption(esc(scenes[it.s].lines[0])); }
+    } else {
+      playing = false;
+      stage.toggleAttribute('hidden', true);
+      screen.classList.add('is-panel');
+      panel.hidden = false;
+      if (it.type === 'quiz') renderQuiz(it.q);
+      else if (it.type === 'explain') renderExplain();
+      else renderResults();
+      const h = panel.querySelector('h3');
+      if (h) h.focus({ preventScroll: true });
+    }
+    updatePlayBtn();
+    updateProgress();
+  }
+
+  function togglePlay() {
+    if (pos < 0) { goTo(0); return; }
+    const it = TL[pos];
+    if (it.type !== 'scene') return;
+    if (playing) { playing = false; hush(); }
+    else {
+      if (line >= scenes[it.s].lines.length) line = scenes[it.s].lines.length - 1;
+      playing = true; speakLine();
+    }
+    updatePlayBtn();
+  }
+
+  function rewatch(s) {
+    if (TL !== FULL) { TL = FULL; buildProgress(); }
+    goTo(FULL.findIndex(t => t.type === 'scene' && t.s === s), true);
+  }
+
+  function updatePlayBtn() {
+    const it = TL[pos];
+    const canPlay = pos < 0 || (it && it.type === 'scene');
+    playBtn.disabled = !canPlay;
+    playBtn.innerHTML = playing ? ICON_PAUSE : ICON_PLAY;
+    playBtn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+  }
+
+  // ---------- Progress bar ----------
+  function buildProgress() {
+    chaptersEl.innerHTML = TL.map((t, i) => {
+      if (t.type === 'scene') return `<button class="seg" type="button" data-p="${i}" style="flex-grow:${scenes[t.s].lines.length}" aria-label="Chapter ${t.s + 1}: ${esc(scenes[t.s].title)}"><i></i></button>`;
+      if (t.type === 'results') return '';
+      const label = t.type === 'explain' ? 'Explain it back' : quizzes[t.q].kind === 'predict' ? 'Prediction question' : 'Question';
+      return `<button class="qmark" type="button" data-p="${i}" aria-label="${label}"></button>`;
+    }).join('');
+    updateProgress();
+  }
+  chaptersEl.addEventListener('click', e => {
+    const b = e.target.closest('[data-p]');
+    if (b) goTo(+b.dataset.p, true);
+  });
+  function updateProgress() {
+    chaptersEl.querySelectorAll('[data-p]').forEach(el => {
+      const p = +el.dataset.p, t = TL[p];
+      if (el.classList.contains('seg')) {
+        const n = scenes[t.s].lines.length;
+        const frac = p < pos ? 1 : p === pos ? Math.min(1, (line + 1) / n) : 0;
+        el.firstChild.style.width = (frac * 100) + '%';
+      } else {
+        el.classList.toggle('now', p === pos);
+        el.classList.toggle('done', p < pos || (t.type === 'quiz' && !!answered[t.q]));
+      }
+    });
+  }
+
+  // ---------- Questions ----------
+  const scoredIndex = q => SCORED.indexOf(q) + 1;
+  const continueBtn = (label = 'Continue') => `<button class="btn" type="button" data-act="next">${label}</button>`;
+  const rewatchBtn = s => `<button class="btn ghost" type="button" data-act="rewatch" data-sc="${s}">Replay: ${esc(scenes[s].title)}</button>`;
+
+  function renderQuiz(q) {
+    const Q = quizzes[q];
+    const tag = Q.kind === 'predict' ? 'Predict' : `Question ${scoredIndex(q)} of ${SCORED.length}`;
+    let body = '';
+    if (Q.kind === 'order') {
+      body = `<div class="slots" id="slots"></div><div class="opts" id="opts">${Q.items.map((s, i) => `<button class="opt" type="button" data-i="${i}">${esc(s)}</button>`).join('')}</div>`;
+    } else if (Q.kind === 'classify') {
+      body = `<div class="cls" id="cls">${Q.items.map(([t], i) => `<div class="crow" data-i="${i}"><span>${esc(t)}</span><span class="pair">${Q.choices.map(([v, label]) =>
+        `<button class="opt sm" type="button" data-v="${v}" aria-pressed="false">${label}</button>`).join('')}</span></div>`).join('')}</div>
+        <div class="actions"><button class="btn" type="button" id="checkBtn" disabled>Check answers</button></div>`;
+    } else {
+      body = `<div class="opts" id="opts">${Q.options.map((o, i) => `<button class="opt" type="button" data-i="${i}">${o.text}</button>`).join('')}</div>`;
+    }
+    panel.innerHTML = `<span class="tag">${tag}</span><h3 tabindex="-1">${esc(Q.prompt)}</h3>${body}<div id="fb" aria-live="polite"></div><div class="actions" id="acts"></div>`;
+    setCaption(esc(Q.prompt));
+    say(Q.prompt, ++gen, null);
+    if (Q.kind === 'order') setupOrder(q);
+    else if (Q.kind === 'classify') setupClassify(q);
+    else setupChoice(q);
+  }
+
+  function feedback(cls, head, text, actions) {
+    $('fb').innerHTML = `<div class="fb ${cls}"><b>${head}</b><span>${text}</span></div>`;
+    $('acts').innerHTML = actions;
+  }
+
+  function setupChoice(q) {
+    const Q = quizzes[q], opts = $('opts');
+    opts.addEventListener('click', e => {
+      const b = e.target.closest('.opt');
+      if (!b || b.disabled) return;
+      const o = Q.options[+b.dataset.i];
+      if (Q.kind === 'predict') {
+        opts.querySelectorAll('.opt').forEach((x, i) => { x.disabled = true; if (Q.options[i].correct) x.classList.add('right'); });
+        if (!o.correct) b.classList.add('picked');
+        answered[q] = true;
+        feedback(o.correct ? 'ok' : 'neutral', o.correct ? 'Good instinct.' : 'Good guess, but no.', o.fb + ' Keep watching to see the fix.', continueBtn());
+        say(o.fb, ++gen, null);
+      } else if (o.correct) {
+        if (!(q in first)) first[q] = true;
+        answered[q] = true;
+        b.classList.add('right');
+        opts.querySelectorAll('.opt').forEach(x => x.disabled = true);
+        feedback('ok', 'Correct.', o.fb, continueBtn());
+        say('Correct. ' + o.fb, ++gen, null);
+      } else {
+        if (!(q in first)) first[q] = false;
+        b.classList.add('wrong'); b.disabled = true;
+        feedback('no', 'Not quite.', o.fb + ' Try another answer, or replay the chapter.', rewatchBtn(Q.scene));
+        say('Not quite. ' + o.fb, ++gen, null);
+      }
+      updateProgress();
+    });
+  }
+
+  function setupOrder(q) {
+    const Q = quizzes[q], opts = $('opts'), slots = $('slots');
+    let picks = [];
+    const draw = () => {
+      slots.innerHTML = Q.answer.map((_, i) => picks[i]
+        ? `<span class="slot filled"><span>${i + 1}</span>${esc(picks[i])}</span>`
+        : `<span class="slot"><span>${i + 1}</span>…</span>`).join('');
+    };
+    draw();
+    opts.addEventListener('click', e => {
+      const b = e.target.closest('.opt');
+      if (!b || b.disabled) return;
+      picks.push(Q.items[+b.dataset.i]);
+      b.disabled = true; b.classList.add('picked');
+      draw();
+      if (picks.length < Q.answer.length) return;
+      const ok = picks.every((p, i) => p === Q.answer[i]);
+      if (!(q in first)) first[q] = ok;
+      if (ok) {
+        answered[q] = true;
+        slots.querySelectorAll('.slot').forEach(s => s.style.borderColor = 'var(--stage-teal)');
+        feedback('ok', 'Correct.', Q.fbOk, continueBtn());
+        say('Correct. ' + Q.fbOk, ++gen, null);
+      } else {
+        feedback('no', 'Not quite.', Q.fbNo, `<button class="btn" type="button" data-act="retry">Try again</button>` + rewatchBtn(Q.scene));
+        say('Not quite. ' + Q.fbNo, ++gen, null);
+      }
+      updateProgress();
+    });
+    onRetry = () => {
+      picks = [];
+      opts.querySelectorAll('.opt').forEach(x => { x.disabled = false; x.classList.remove('picked'); });
+      $('fb').innerHTML = ''; $('acts').innerHTML = '';
+      draw();
+    };
+  }
+
+  function setupClassify(q) {
+    const Q = quizzes[q], cls = $('cls'), check = $('checkBtn');
+    const picks = {};
+    let done = false;
+    cls.addEventListener('click', e => {
+      const b = e.target.closest('[data-v]');
+      if (!b || done) return;
+      const row = b.closest('.crow');
+      picks[row.dataset.i] = b.dataset.v;
+      row.classList.remove('bad');
+      row.querySelectorAll('[data-v]').forEach(x => { const on = x === b; x.classList.toggle('sel', on); x.setAttribute('aria-pressed', String(on)); });
+      check.disabled = Object.keys(picks).length < Q.items.length;
+    });
+    check.addEventListener('click', () => {
+      const wrong = Q.items.map(([, a], i) => picks[i] !== a);
+      const ok = !wrong.includes(true);
+      if (!(q in first)) first[q] = ok;
+      cls.querySelectorAll('.crow').forEach((row, i) => { row.classList.toggle('bad', wrong[i]); row.classList.toggle('good', ok); });
+      if (ok) {
+        done = true; answered[q] = true;
+        cls.querySelectorAll('[data-v]').forEach(x => x.disabled = true);
+        check.hidden = true;
+        feedback('ok', 'Correct.', Q.fbOk, continueBtn());
+        say('Correct. ' + Q.fbOk, ++gen, null);
+      } else {
+        const n = wrong.filter(Boolean).length;
+        feedback('no', 'Not quite.', `${n} of ${Q.items.length} are in the wrong group, marked in red. ${Q.fbNo}`, rewatchBtn(Q.scene));
+        say('Not quite. ' + Q.fbNo, ++gen, null);
+      }
+      updateProgress();
+    });
+  }
+
+  // ---------- Explain back + results ----------
+  let explainDraft = '';
+  function renderExplain() {
+    panel.innerHTML = `<span class="tag">Explain it back</span>
+      <h3 tabindex="-1">${esc(EXPLAIN.prompt)}</h3>
+      <textarea id="explain-text" placeholder="${esc(EXPLAIN.placeholder)}">${esc(explainDraft)}</textarea>
+      <div id="model" hidden class="model"><b>Our version:</b> ${esc(EXPLAIN.model)}</div>
+      <div class="actions"><button class="btn" type="button" data-act="compare">Compare with our version</button><button class="btn ghost" type="button" data-act="next">Skip to results</button></div>`;
+    $('explain-text').addEventListener('input', e => { explainDraft = e.target.value; });
+    setCaption('Write it in your own words first. Then compare.');
+    say(EXPLAIN.say, ++gen, null);
+  }
+
+  function renderResults() {
+    const got = SCORED.filter(q => first[q] === true).length;
+    const rows = SCORED.map(q => {
+      const Q = quizzes[q], ok = first[q] === true, seen = q in first;
+      const pill = !seen ? '<span class="pill no">Skipped</span>' : ok ? '<span class="pill ok">First try</span>' : '<span class="pill no">Needed a retry</span>';
+      const again = ok ? '' : `<button class="linkbtn" type="button" data-act="rewatch" data-sc="${Q.scene}">Replay chapter</button>`;
+      return `<li><span class="q">${esc(Q.short)}</span>${pill}${again}</li>`;
+    }).join('');
+    panel.innerHTML = `<span class="tag">Your results</span>
+      <div class="score">${got} / ${SCORED.length}</div>
+      <h3 tabindex="-1">${got === SCORED.length ? 'All correct on the first try.' : 'Replay the chapters you missed, then try the questions again.'}</h3>
+      <ul class="rlist">${rows}</ul>
+      <p>Come back in a week and take the questions again without the lesson. Recalling it later is what makes it stick.</p>
+      <div class="actions"><button class="btn" type="button" data-act="quizonly">Quiz me again</button><button class="btn ghost" type="button" data-act="restart">Watch from the start</button></div>`;
+    setCaption(`You got ${got} of ${SCORED.length} on the first try.`);
+    say(`You got ${got} of ${SCORED.length} on the first try.`, ++gen, null);
+  }
+
+  panel.addEventListener('click', e => {
+    const b = e.target.closest('[data-act]');
+    if (!b) return;
+    const act = b.dataset.act;
+    if (act === 'next') goTo(pos + 1, true);
+    else if (act === 'retry') { if (onRetry) onRetry(); }
+    else if (act === 'rewatch') rewatch(+b.dataset.sc);
+    else if (act === 'compare') { $('model').hidden = false; b.outerHTML = continueBtn('See results'); }
+    else if (act === 'quizonly') {
+      SCORED.forEach(q => { delete first[q]; delete answered[q]; });
+      TL = QUIZ_ONLY; buildProgress(); goTo(0, false);
+    } else if (act === 'restart') {
+      Object.keys(first).forEach(k => delete first[k]);
+      Object.keys(answered).forEach(k => delete answered[k]);
+      TL = FULL; buildProgress(); goTo(0, true);
+    }
+  });
+
+  // ---------- Controls ----------
+  startBtn.addEventListener('click', () => goTo(0, true));
+  // Light or dark: switches the page and the lesson screen together, and remembers the choice in this browser
+  const themeBtn = $('themeBtn'), root = document.documentElement;
+  const SUN = '<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 1.5v2.5M10 16v2.5M1.5 10h2.5M16 10h2.5M4 4l1.8 1.8M14.2 14.2L16 16M4 16l1.8-1.8M14.2 5.8L16 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  const MOON = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M15.5 12.5A6.5 6.5 0 0 1 7.5 4.5a6.5 6.5 0 1 0 8 8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+  function setTheme(t) {
+    root.dataset.theme = t;
+    root.dataset.stage = t;
+    themeBtn.innerHTML = t === 'light' ? MOON : SUN;
+    themeBtn.setAttribute('aria-label', t === 'light' ? 'Switch to dark theme' : 'Switch to light theme');
+  }
+  let saved = null;
+  try { saved = localStorage.getItem('vulcan-theme'); } catch (e) { }
+  setTheme(saved === 'light' ? 'light' : 'dark');
+  themeBtn.addEventListener('click', () => {
+    const t = root.dataset.stage === 'light' ? 'dark' : 'light';
+    setTheme(t);
+    try { localStorage.setItem('vulcan-theme', t); } catch (e) { }
+  });
+  // Presentation mode: native full screen where the browser allows it, a full-window player otherwise
+  const player = document.querySelector('.player'), fsBtn = $('fsBtn');
+  const FS_ON = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 3v4H3M17 7h-4V3M13 17v-4h4M3 13h4v4" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+  const FS_OFF = fsBtn.innerHTML;
+  const syncFs = () => {
+    const on = player.classList.contains('full');
+    fsBtn.innerHTML = on ? FS_ON : FS_OFF;
+    fsBtn.setAttribute('aria-label', on ? 'Exit full screen' : 'Full screen');
+  };
+  function setFull(on) {
+    player.classList.toggle('full', on);
+    if (on && !document.fullscreenElement && player.requestFullscreen) player.requestFullscreen().catch(() => {});
+    if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    syncFs();
+  }
+  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) player.classList.remove('full'); syncFs(); });
+  fsBtn.addEventListener('click', () => setFull(!player.classList.contains('full')));
+  $('fsStartBtn').addEventListener('click', () => { setFull(true); goTo(0, true); });
+  document.addEventListener('keydown', e => {
+    if (e.target.closest('textarea, input, select')) return;
+    if (e.key === 'f' || e.key === 'F') setFull(!player.classList.contains('full'));
+    else if (e.key === 'Escape' && player.classList.contains('full') && !document.fullscreenElement) setFull(false);
+  });
+  playBtn.addEventListener('click', togglePlay);
+  voiceBtn.addEventListener('click', () => {
+    muted = !muted;
+    voiceBtn.setAttribute('aria-pressed', String(!muted));
+    if (playing) speakLine(); else hush();
+  });
+  ccBtn.addEventListener('click', () => {
+    const on = ccBtn.getAttribute('aria-pressed') !== 'true';
+    ccBtn.setAttribute('aria-pressed', String(on));
+    caption.classList.toggle('off', !on);
+  });
+  rateSel.addEventListener('change', () => { rate = +rateSel.value; if (playing) speakLine(); });
+  document.addEventListener('keydown', e => {
+    if (e.code !== 'Space' || e.target.closest('textarea, input, button, select')) return;
+    e.preventDefault(); togglePlay();
+  });
+
+  showScene('title');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) stage.pauseAnimations();
+  if (location.hash.startsWith('#dbg')) window.__show = (s, l) => { showScene(s); for (let i = 0; i <= l; i++) reveal(s, i); };
+  buildProgress();
+  updatePlayBtn();
+})();
+</script>
+</body>
+</html>

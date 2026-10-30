@@ -251,6 +251,13 @@ select.ctl { appearance: none; padding-right: 10px; }
 .stage .scan { fill: var(--stage-ember-soft); stroke: var(--stage-ember); stroke-width: 1.4; }
 .stage .growy { transform: scaleY(0); transform-box: fill-box; transform-origin: center bottom; transition: transform 1.4s ease; }
 .stage .on .growy { transform: none; }
+.stage .travel, .stage .reject { opacity: 0; }
+.stage .on .travel { animation: travel 10s linear both; }
+.stage .on .reject { animation: reject 10s linear both; }
+@keyframes travel { 0%, 44% { opacity: 0; transform: translate(250px, 836px); } 50% { opacity: 1; transform: translate(440px, 836px); } 64% { transform: translate(440px, 836px); }
+  70% { transform: translate(640px, 836px); } 81% { transform: translate(640px, 836px); } 87% { opacity: 1; transform: translate(840px, 836px); } 93%, 100% { opacity: 0; transform: translate(900px, 836px); } }
+@keyframes reject { 0%, 44% { opacity: 0; transform: translate(250px, 864px); } 50% { opacity: 1; transform: translate(440px, 864px); } 64% { transform: translate(440px, 864px); }
+  71% { transform: translate(540px, 784px); } 82% { opacity: 1; transform: translate(540px, 784px); } 86%, 100% { opacity: 0; transform: translate(540px, 784px); } }
 /* Presentation mode: the player fills the screen */
 /* Everything shares one centered column: the width of the 16:9 frame that fits above the caption and controls */
 .player.full { position: fixed; inset: 0; z-index: 100; border-radius: 0; display: flex; flex-direction: column; justify-content: center;
@@ -545,15 +552,12 @@ select.ctl { appearance: none; padding-right: 10px; }
              [['Transform', spin(340, 840, gear(340, 840), 5), 'clean, joined tables'], ['Check', shield(540, 842, 't'), 'bad rows stopped'], ['Describe', tag(742, 840), 'names and meaning'], ['Serve', sparkle(940, 840), 'APIs, dashboards, AI']].map(([t, ic, sub], i) =>
                pop(0.2 + i * 0.3, `<circle class="il t fillp" cx="${340 + i * 200}" cy="840" r="44"/>` + ic + T(340 + i * 200, 920, t, 'ttl') + T(340 + i * 200, 944, sub, 'sm dim'))).join('') +
              [4.2, 6.2, 7.4, 8.6].map((d, i) => soon(pop(d, `<circle class="il t" cx="${340 + i * 200}" cy="840" r="54"/>`), d + 1.6)).join('') +
-             // Transform: messy pieces become neat rows
-             soon([0, 1, 2].map(i => fly(230, 820 + i * 20, 440, 822 + i * 14, 0.9, `<rect class="tealfill" x="-22" y="-5" width="44" height="10" rx="3"/>`, 4.4 + i * 0.15)).join(''), 6.6) +
-             // Check: a bad row is pushed out at the shield
-             soon(fly(440, 840, 540, 776, 0.8, R(-18, -8, 36, 16, 'badrow', 4) + P('M-5 -5 l10 10 m0 -10 l-10 10', 'il e'), 6.3) +
-               pop(6.9, T(540, 760, 'stopped', 'sm warn')), 8.2) +
-             soon([0, 1, 2].map(i => fly(440, 822 + i * 14, 640, 822 + i * 14, 0.8, `<rect class="tealfill" x="-22" y="-5" width="44" height="10" rx="3"/>`, 6.6 + i * 0.1)).join(''), 8.1) +
-             // Describe: names attach to the clean data, which then moves on to be served
-             soon(pop(7.6, chip(600, 762, 90, 'revenue', 't')) + pop(7.8, chip(696, 762, 80, 'store', 't')) +
-               [0, 1, 2].map(i => fly(640, 822 + i * 14, 840, 822 + i * 14, 0.8, `<rect class="tealfill" x="-22" y="-5" width="44" height="10" rx="3"/>`, 8.1 + i * 0.1)).join(''), 9.2) +
+             // One packet of clean rows travels through the steps; at Check a bad row splits off and stops
+             `<g class="travel">${[-14, 0, 14].map(y => `<rect class="tealfill" x="-22" y="${y - 5}" width="44" height="10" rx="3"/>`).join('')}</g>` +
+             `<g class="reject">${R(-22, -8, 44, 16, 'badrow', 4) + P('M-5 -5 l10 10 m0 -10 l-10 10', 'il e')}</g>` +
+             soon(pop(7.2, T(540, 760, 'stopped', 'sm warn')), 8.4) +
+             // Describe: names attach to the clean data
+             soon(pop(7.9, chip(600, 762, 90, 'revenue', 't')) + pop(8.1, chip(696, 762, 80, 'store', 't')), 9.2) +
              // Serve: the result flows to its consumers
              [[1060, 776, 'bars'], [1060, 840, 'API'], [1060, 904, 'AI']].map(([x, y, k], i) => {
                const d = `M984 840 C1010 840 1014 ${y} ${x - 26} ${y}`;

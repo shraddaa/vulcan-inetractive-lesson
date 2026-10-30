@@ -536,16 +536,45 @@ select.ctl { appearance: none; padding-right: 10px; }
       cam: [[640, 330, 0.85], [640, 860, 1.0], [640, 1110, 0.95], [640, 1425, 0.75], [640, 1700, 0.95], [640, 1960, 0.9]],
       svg: [
         U(0, 0, logoIntro(312, 200, 4) + pop(2.1, T(640, 430, 'Vulcan, from start to finish', 'big')) + pop(2.4, T(640, 470, 'an interactive lesson', 'sm dim'))),
-        U(1, 1, T(640, 740, 'how Vulcan builds a data product', 'sm dim') +
-             [['Transform', gear(340, 840)], ['Check', shield(540, 842, 't')], ['Describe', tag(742, 840)], ['Serve', sparkle(940, 840)]].map(([t, ic], i) =>
-               pop(0.2 + i * 0.3, `<circle class="il t fillp" cx="${340 + i * 200}" cy="840" r="44"/>` + ic + T(340 + i * 200, 920, t, 'ttl'))).join('')),
+        // Raw data goes through the four steps: cleaned, checked (a bad row stops), named, then served to consumers
+        U(1, 1, T(640, 690, 'how Vulcan builds a data product', 'sm dim') +
+             `<line class="il d" x1="250" y1="840" x2="1010" y2="840"/>` +
+             [[196, 812, 30, 12, 8], [226, 836, 18, 18, -12], [190, 862, 26, 10, 20], [232, 872, 14, 14, 30], [214, 800, 16, 10, -25]].map(([x, y, w, h, r]) =>
+               `<rect class="il d fillp" x="${x}" y="${y}" width="${w}" height="${h}" rx="2" transform="rotate(${r} ${x + w / 2} ${y + h / 2})"/>`).join('') +
+             T(222, 912, 'raw data', 'sm dim') +
+             [['Transform', spin(340, 840, gear(340, 840), 5), 'clean, joined tables'], ['Check', shield(540, 842, 't'), 'bad rows stopped'], ['Describe', tag(742, 840), 'names and meaning'], ['Serve', sparkle(940, 840), 'APIs, dashboards, AI']].map(([t, ic, sub], i) =>
+               pop(0.2 + i * 0.3, `<circle class="il t fillp" cx="${340 + i * 200}" cy="840" r="44"/>` + ic + T(340 + i * 200, 920, t, 'ttl') + T(340 + i * 200, 944, sub, 'sm dim'))).join('') +
+             [4.2, 6.2, 7.4, 8.6].map((d, i) => pop(d, `<circle class="il t pulse" cx="${340 + i * 200}" cy="840" r="54"/>`)).join('') +
+             // Transform: messy pieces become neat rows
+             [0, 1, 2].map(i => fly(230, 820 + i * 20, 440, 822 + i * 14, 0.9, `<rect class="tealfill" x="-22" y="-5" width="44" height="10" rx="3"/>`, 4.4 + i * 0.15)).join('') +
+             // Check: a bad row is pushed out at the shield
+             fly(440, 840, 540, 776, 0.8, R(-18, -8, 36, 16, 'badrow', 4) + P('M-5 -5 l10 10 m0 -10 l-10 10', 'il e'), 6.3) +
+             pop(6.9, T(540, 760, 'stopped', 'sm warn')) +
+             [0, 1, 2].map(i => fly(440, 822 + i * 14, 640, 822 + i * 14, 0.8, `<rect class="tealfill" x="-22" y="-5" width="44" height="10" rx="3"/>`, 6.6 + i * 0.1)).join('') +
+             // Describe: names attach to the clean data, which then moves on to be served
+             pop(7.6, chip(600, 762, 90, 'revenue', 't')) + pop(7.8, chip(696, 762, 80, 'store', 't')) +
+             [0, 1, 2].map(i => fly(640, 822 + i * 14, 840, 822 + i * 14, 0.8, `<rect class="tealfill" x="-22" y="-5" width="44" height="10" rx="3"/>`, 8.1 + i * 0.1)).join('') +
+             // Serve: the result flows to its consumers
+             [[1060, 776, 'bars'], [1060, 840, 'API'], [1060, 904, 'AI']].map(([x, y, k], i) => {
+               const d = `M984 840 C1010 840 1014 ${y} ${x - 26} ${y}`;
+               return pop(8.8 + i * 0.2, P(d, 'il t') + flowDots(d, 2, 1.2, 'dot', 3.5) +
+                 (k === 'bars' ? [10, 18, 14].map((h, j) => `<rect class="tealfill" x="${x - 18 + j * 12}" y="${y + 10 - h}" width="8" height="${h}" rx="2"/>`).join('') :
+                  k === 'API' ? R(x - 22, y - 12, 44, 24, 'il t', 6) + T(x, y + 5, 'API', 'mono tealt') : sparkle(x, y)));
+             }).join('')),
         U(2, 2, shop(250, 1010, 'Harbor') + shop(534, 1010, 'Market') + shop(818, 1010, 'Station')),
         U(3, 3, [['Foundations', 'chapters 1 to 5'], ['Building models', 'chapters 6 to 8'], ['Safe changes', 'chapters 9 to 11'], ['The semantic layer', 'chapters 12 to 14'], ['Access, AI, daily work', 'chapters 15 to 18']].map(([t, c], i) =>
                pop(0.2 + i * 0.25, R(60 + i * 236, 1350, 220, 150, 'il fillp', 14) + T(60 + i * 236 + 20, 1386, `PART ${i + 1}`, 'mono tealt', 'start') +
                  T(60 + i * 236 + 20, 1424, t, 'ttl', 'start') + T(60 + i * 236 + 20, 1456, c, 'sm dim', 'start'))).join('')),
-        U(4, 4, pop(0.2, R(170, 1610, 430, 180, 'il fillp', 14) + T(194, 1644, 'QUICK QUESTION', 'mono tealt', 'start') +
-               [0, 1, 2].map(i => R(194, 1662 + i * 40, 382, 30, i === 1 ? 'il t' : 'il d', 8)).join('')) +
-             pop(0.7, R(680, 1610, 430, 180, 'recapbg', 14) + T(704, 1644, 'IN SHORT', 'eyb', 'start') + T(704, 1690, 'One sentence per chapter,', 'ttl', 'start') + T(704, 1722, 'to repeat to your team.', 'ttl', 'start'))),
+        // A sample question gets answered, then a sample summary card fills in, line by line
+        U(4, 4, pop(0.2, R(170, 1596, 430, 228, 'il fillp', 14) + T(194, 1630, 'QUICK QUESTION', 'mono tealt', 'start')) +
+             pop(0.5, T(194, 1662, 'Which check stops bad data in every run?', 'sm', 'start')) +
+             ['The linter', 'A blocking assertion', 'A data quality check'].map((s, i) => pop(0.8 + i * 0.2, R(194, 1680 + i * 42, 382, 34, 'il d', 8) + T(212, 1702 + i * 42, s, 'sm', 'start'))).join('') +
+             later(R(194, 1722, 382, 34, 'il t fillt', 8) + T(212, 1744, 'A blocking assertion', 'sm', 'start') + P('M548 1739 l5 5 l9 -10', 'il t'), 2.7) +
+             fly(560, 1830, 470, 1744, 1, P('M0 0 v20 l5 -5 l4 9 l4 -2 l-4 -9 h7 z', 'il fillp'), 1.6) +
+             pop(3, T(194, 1815, 'Correct: assertions block bad rows in every run.', 'sm tealt', 'start')) +
+             pop(4.6, R(680, 1596, 430, 228, 'recapbg', 14) + T(704, 1630, 'IN SHORT', 'eyb', 'start')) +
+             ['Linter and unit tests check logic', 'before anything is built.', 'Assertions block bad data in every run.'].map((s, i) => pop(5.2 + i * 0.5, T(704, 1676 + i * 32, s, 'ttl', 'start'))).join('') +
+             pop(7, T(704, 1800, 'one summary per chapter, easy to repeat', 'sm dim', 'start'))),
         G(5, [['progress bar', 'jump to any chapter'], ['CC', 'captions on or off'], ['light / dark', 'theme button'], ['full screen', 'press F']].map(([t, d], i) =>
                pop(0.2 + i * 0.2, R(160 + i * 245, 1880, 225, 80, 'il fillp', 12) + T(272 + i * 245, 1914, t, 'ttl') + T(272 + i * 245, 1942, d, 'sm dim'))).join('') +
              pop(1.2, T(640, 2040, "Let's begin.", 'big tealt')))

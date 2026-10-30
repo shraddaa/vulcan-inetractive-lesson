@@ -60,7 +60,25 @@ body {
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   padding-block: 32px 64px;
 }
-.wrap { max-width: 1000px; margin: 0 auto; display: grid; gap: 28px; }
+.wrap { max-width: 1280px; margin: 0 auto; display: grid; gap: 28px; }
+
+/* Chapter list on the left; below the player on narrow screens */
+.layout { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 24px; align-items: start; }
+.toc { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; padding-right: 4px; }
+.toc h2 { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 16px 8px 4px; }
+.toc h2:first-child { margin-top: 0; }
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+.toc button { display: flex; align-items: baseline; gap: 8px; width: 100%; text-align: left; background: none; border: 0; border-radius: 8px;
+  padding: 6px 8px; color: var(--ink); font: 500 14px/1.3 var(--font-body); cursor: pointer; }
+.toc button:hover { background: var(--hl); }
+.toc button[aria-current="true"] { background: var(--hl); color: var(--accent); font-weight: 600; }
+.toc .n { flex: none; min-width: 1.7em; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.toc .seen .n { color: var(--accent); }
+.toc button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media (max-width: 900px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .toc { order: 2; position: static; max-height: none; }
+}
 
 header { display: grid; gap: 6px; }
 .eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
@@ -308,6 +326,8 @@ select.ctl { appearance: none; padding-right: 10px; }
     <span class="brand"><svg viewBox="0 0 164 32" role="img" aria-label="DataOS"><path d="M17.3446 2.14778C24.329 2.14275 29.9948 7.79515 29.9998 14.7717L17.3537 14.7808L17.3446 2.14778Z" fill="currentColor"/><path d="M29.981 17.0615C29.986 24.038 24.3283 29.6986 17.3439 29.7036L17.3348 17.0706L29.981 17.0615Z" fill="currentColor"/><path d="M8.66882 29.8556C4.99111 29.8582 2.00755 26.8816 2.00491 23.2065C2.00226 19.5314 4.98153 16.5504 8.65924 16.5478C12.3369 16.5451 15.3205 19.5218 15.3231 23.1969C15.3258 26.872 12.3465 29.8529 8.66882 29.8556Z" fill="currentColor"/><path d="M14.9822 14.7883L14.9731 2.15527L2.327 2.16438L2.3361 14.7974L14.9822 14.7883Z" fill="currentColor"/><path d="M46.9692 25.581C52.665 25.581 55.7259 21.9081 55.7259 16.106C55.7259 10.3039 52.665 6.60435 46.9692 6.60435H42.6041V25.581H46.9692ZM37.9995 2.53223H47.1555C55.1669 2.53223 60.3305 7.85527 60.3305 16.106C60.3305 24.3833 55.1669 29.6797 47.1555 29.6797H37.9995V2.53223Z" fill="currentColor"/><path d="M73.7974 22.7072C73.3183 21.4563 71.535 20.7111 69.7783 20.7111C67.7821 20.7111 65.7061 21.5628 65.7061 23.5057C65.7061 25.4486 67.7821 26.3269 69.7783 26.3269C71.535 26.3269 73.3183 25.5817 73.7974 24.3308V22.7072ZM73.7974 29.574V28.4561C73.132 29.1215 71.1358 29.92 68.9266 29.92C64.9076 29.92 61.5806 27.5246 61.5806 23.5057C61.5806 19.7796 64.9076 17.1713 69.246 17.1713C71.0027 17.1713 72.9989 17.7834 73.7974 18.369V16.7721C73.7974 14.7759 72.5464 13.2322 70.0445 13.2322C68.2878 13.2322 67.17 13.9775 66.6909 15.3614H62.4323C63.0178 12.0079 66.1053 9.47949 70.1243 9.47949C75.075 9.47949 78.0027 12.2209 78.0027 16.6922V29.574H73.7974Z" fill="currentColor"/><path d="M82.3682 13.6048H79.2808V9.93192H82.3682V4.66211H86.7865V9.93192H91.2048V13.6048H86.7865V23.7718C86.7865 25.3687 87.6648 26.0607 89.1287 26.0607C90.0071 26.0607 91.0451 25.7147 91.6573 25.2623V29.2812C90.912 29.7336 89.7143 29.9998 88.3303 29.9998C84.8435 29.9998 82.3682 28.1367 82.3682 24.2509V13.6048Z" fill="currentColor"/><path d="M105.524 22.7072C105.045 21.4563 103.262 20.7111 101.505 20.7111C99.5087 20.7111 97.4326 21.5628 97.4326 23.5057C97.4326 25.4486 99.5087 26.3269 101.505 26.3269C103.262 26.3269 105.045 25.5817 105.524 24.3308V22.7072ZM105.524 29.574V28.4561C104.859 29.1215 102.862 29.92 100.653 29.92C96.6341 29.92 93.3071 27.5246 93.3071 23.5057C93.3071 19.7796 96.6342 17.1713 100.973 17.1713C102.729 17.1713 104.725 17.7834 105.524 18.369V16.7721C105.524 14.7759 104.273 13.2322 101.771 13.2322C100.014 13.2322 98.8965 13.9775 98.4174 15.3614H94.1588C94.7444 12.0079 97.8319 9.47949 101.851 9.47949C106.802 9.47949 109.729 12.2209 109.729 16.6922V29.574H105.524Z" fill="currentColor"/><path d="M124.421 4.12897C118.672 4.12897 114.733 8.99955 114.733 15.9993C114.733 22.9991 118.672 27.8697 124.421 27.8697C130.17 27.8697 134.162 22.9991 134.162 15.9993C134.136 8.99955 130.197 4.12897 124.421 4.12897ZM124.421 29.9723C117.527 29.9723 112.417 24.3033 112.417 15.9993C112.417 7.6954 117.501 2.02637 124.421 2.02637C131.341 2.02637 136.451 7.66879 136.451 15.9727C136.451 24.2767 131.368 29.9723 124.421 29.9723Z" fill="currentColor"/><path d="M140.071 22.9195C141.189 26.1932 144.064 27.9232 147.764 27.9232C151.463 27.9232 154.524 25.9271 154.524 22.4671C154.524 20.0717 153.273 18.395 149.84 17.4368L144.649 15.973C140.843 14.9084 138.421 13.1784 138.421 9.34579C138.421 4.74137 142.307 2 146.992 2C152.315 2 155.482 4.7946 156.547 8.81349H154.284C153.273 5.93905 150.931 4.02276 146.992 4.02276C143.452 4.02276 140.577 5.88582 140.577 9.1861C140.577 12.0605 142.44 13.0719 145.767 14.0035L150.319 15.3342C154.79 16.5851 156.733 18.7942 156.733 22.3606C156.733 27.1514 152.847 29.9193 147.737 29.9193C142.653 29.9193 138.741 27.3909 137.703 22.8929L140.071 22.9195Z" fill="currentColor"/><path d="M159.608 6.20599H159.075V6.84476H159.581C159.821 6.84476 159.954 6.71168 159.954 6.52537C159.954 6.36568 159.821 6.23261 159.608 6.20599ZM159.075 7.19075V8.01583H158.703V5.88661H159.555C160.007 5.88661 160.3 6.12615 160.3 6.55199C160.3 6.89799 160.087 7.11091 159.794 7.19075L160.38 8.04244H159.954L159.395 7.21737H159.075V7.19075ZM159.475 5.24784C158.543 5.24784 157.771 5.96646 157.771 6.95122C157.771 7.93598 158.543 8.68121 159.475 8.68121C160.406 8.68121 161.178 7.96259 161.178 6.95122C161.152 5.96646 160.406 5.24784 159.475 5.24784ZM159.475 9.00059C158.383 9.00059 157.479 8.1489 157.479 6.97783C157.479 5.80676 158.383 4.95508 159.475 4.95508C160.566 4.95508 161.471 5.80676 161.471 6.97783C161.471 8.1489 160.566 9.00059 159.475 9.00059Z" fill="currentColor"/></svg><span class="eyebrow">Vulcan interactive lesson</span></span>
     <h1 class="sr-only">Vulcan, from start to finish</h1>  </header>
 
+  <div class="layout">
+  <nav class="toc" id="toc" aria-label="Chapters"></nav>
   <section class="player" aria-label="Interactive explainer">
     <div class="screen" id="screen">
       <svg class="stage" id="stage" viewBox="0 0 960 540" role="img" aria-label="Animated diagram for the current chapter">
@@ -346,6 +366,7 @@ select.ctl { appearance: none; padding-right: 10px; }
       <button class="ctl" id="fsBtn" type="button" aria-label="Full screen" title="Full screen (F)"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
     </div>
   </section>
+  </div>
 
 </div>
 
@@ -1813,7 +1834,27 @@ select.ctl { appearance: none; padding-right: 10px; }
     const b = e.target.closest('[data-p]');
     if (b) goTo(+b.dataset.p, true);
   });
+  // Left chapter list: welcome, then the 18 chapters grouped by part
+  const PARTS = [['', [0]], ['Foundations', [1, 2, 3, 4, 5]], ['Building models', [6, 7, 8]], ['Safe changes', [9, 10, 11]],
+    ['The semantic layer', [12, 13, 14]], ['Putting it to work', [15, 16, 17, 18]]];
+  const toc = $('toc');
+  toc.innerHTML = PARTS.map(([part, ss], i) => (part ? `<h2>Part ${i} · ${esc(part)}</h2>` : '') +
+    '<ol>' + ss.map(s => `<li><button type="button" data-sc="${s}"><span class="n">${s || ''}</span><span>${esc(scenes[s].title)}</span></button></li>`).join('') + '</ol>').join('');
+  toc.addEventListener('click', e => { const b = e.target.closest('[data-sc]'); if (b) rewatch(+b.dataset.sc); });
+  const seen = new Set();
+  function updateToc() {
+    const t = TL[pos];
+    const s = !t ? -1 : t.type === 'scene' ? t.s : t.type === 'quiz' ? quizzes[t.q].scene : -1;
+    if (s >= 0) seen.add(s);
+    toc.querySelectorAll('[data-sc]').forEach(b => {
+      const k = +b.dataset.sc;
+      b.setAttribute('aria-current', String(k === s));
+      b.classList.toggle('seen', seen.has(k) && k !== s);
+    });
+  }
+
   function updateProgress() {
+    updateToc();
     chaptersEl.querySelectorAll('[data-p]').forEach(el => {
       const p = +el.dataset.p, t = TL[p];
       if (el.classList.contains('seg')) {

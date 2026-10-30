@@ -1763,7 +1763,7 @@ select.ctl { appearance: none; padding-right: 10px; }
         line++;
         if (line >= sc.lines.length) goTo(pos + 1, true);
         else speakLine();
-      }, 200);
+      }, 600);
     });
     // Warm up the clip for whatever plays next: the next line, or the first line of the next chapter
     const nxt = line + 1 < sc.lines.length ? sc.lines[line + 1] : (TL[pos + 1] && TL[pos + 1].type === 'scene' ? scenes[TL[pos + 1].s].lines[0] : null);

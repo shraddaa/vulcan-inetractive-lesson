@@ -631,10 +631,17 @@ select.ctl { appearance: none; padding-right: 10px; }
         'The payoff shows in two numbers. MTTD, the mean time to detect a data problem, and MTTR, the mean time to recover from it. Vulcan shortens both.'
       ],
       recap: 'Vulcan is the build step. One project holds your transforms, checks, meaning and APIs, and it runs on the engine you already have.',
-      cam: [[640, 200, 0.82], [640, 380, 0.8], [450, 305, 1.25], [830, 305, 1.25], [450, 475, 1.25], [830, 475, 1.25], WIDE, WIDE],
+      cam: [[620, 110, 0.85], [640, 352, 0.8], [450, 305, 1.25], [830, 305, 1.25], [450, 475, 1.25], [830, 475, 1.25], WIDE, WIDE],
       svg: [
-        G(0, flow(60, 200, 40, [['Discover'], ['Design'], ['Build', '', 'tealfill'], ['Publish'], ['Consume']], 60, 40)),
-        G(1, draw('M620 124 V166', 'il t') + R(240, 170, 800, 420, 'layer', 18) + T(640, 206, 'one Vulcan project', 'sm tealt') +
+        // The five lifecycle steps; a data product travels along and stops at Build, where Vulcan works
+        G(0, `<line class="il d" x1="120" y1="96" x2="1120" y2="96"/>` +
+             [['Discover', lens(120, 96)], ['Design', P('M356 108 l3 -11 l18 -18 l8 8 l-18 18 z M371 85 l8 8', 'il t')], ['Build', spin(620, 96, gear(620, 96), 5)],
+              ['Publish', P('M870 110 v-26 m-10 10 l10 -10 l10 10 M856 114 h28', 'il t')], ['Consume', [8, 16, 12].map((h, j) => `<rect class="tealfill" x="${1106 + j * 10}" y="${108 - h}" width="7" height="${h}" rx="2"/>`).join('')]].map(([t, ic], i) =>
+               pop(0.3 + i * 0.9, `<circle class="il ${i === 2 ? 't thickish' : 't'} fillp" cx="${120 + i * 250}" cy="96" r="32"/>` + ic + T(120 + i * 250, 44, t, i === 2 ? 'ttl tealt' : 'ttl'))).join('') +
+             fly(80, 96, 572, 96, 3.2, `<rect class="tealfill" x="-9" y="-9" width="18" height="18" rx="4"/>`, 4.8) +
+             pop(7.8, `<circle class="il t pulse" cx="620" cy="96" r="42"/>`)),
+        U(0, 0, pop(7.8, chip(560, -24, 120, 'Vulcan', 't')) + pop(8.2, T(620, 168, 'Vulcan is the tool for this step', 'sm tealt'))),
+        G(1, draw('M620 132 V166', 'il t') + R(240, 170, 800, 420, 'layer', 18) + T(640, 206, 'one Vulcan project', 'sm tealt') +
              [[270, 230], [650, 230], [270, 400], [650, 400]].map(([x, y]) => R(x, y, 360, 150, 'il fillp', 14)).join('')),
         G(2, R(270, 230, 360, 150, 'il t', 14) + gear(310, 272) + T(340, 280, 'Transform', 'ttl', 'start') +
              T(290, 320, 'models in SQL or Python', 'sm dim', 'start') + T(290, 344, 'one graph, built in order', 'sm dim', 'start') +
@@ -1629,7 +1636,7 @@ select.ctl { appearance: none; padding-right: 10px; }
   };
   if (tts) { pickVoice(); tts.onvoiceschanged = pickVoice; }
 
-  let clip = null;
+  let clip = null, cur = null, held = null;
   function say(text, g, onDone) {
     let fired = false, wd;
     const plain = text.replace(/<[^>]+>/g, '');
@@ -1645,6 +1652,8 @@ select.ctl { appearance: none; padding-right: 10px; }
     const fallback = () => { if (fellBack || fired || g !== gen) return; fellBack = true; a.onended = null; speakTts(plain, g, finish, est, w => { wd = w; }); };
     a.onerror = fallback;
     a.play().then(() => { wd = setTimeout(finish, (a.duration ? a.duration * 1000 / rate : est * 2) + 2500); }).catch(fallback);
+    // Lets pause hold this clip mid-line and resume it later
+    cur = { a, g, clear: () => clearTimeout(wd), resumeIn: ms => { clearTimeout(wd); wd = setTimeout(finish, ms); } };
   }
   function speakTts(plain, g, finish, est, setWd) {
     if (!tts) { setWd(setTimeout(finish, est + 300)); return; }
@@ -1664,7 +1673,15 @@ select.ctl { appearance: none; padding-right: 10px; }
     } catch (e) { wd = setTimeout(finish, est); }
     setWd(wd);
   }
-  const hush = () => { gen++; if (clip) clip.pause(); if (tts) tts.cancel(); };
+  const hush = () => { gen++; held = null; if (clip) clip.pause(); if (tts) tts.cancel(); };
+  // Pause freezes every animation on the stage (CSS animations, transitions and the looping SMIL dots)
+  let frozen = [];
+  const freeze = on => {
+    const st = document.getElementById('stage');
+    try { on ? st.pauseAnimations() : st.unpauseAnimations(); } catch (e) { }
+    if (on) { frozen = st.getAnimations({ subtree: true }).filter(a => a.playState === 'running'); frozen.forEach(a => a.pause()); }
+    else { frozen.forEach(a => { try { a.play(); } catch (e) { } }); frozen = []; }
+  };
 
   // ---------- Playback ----------
   // Count numbers up and start one-shot motions when their line is reached
@@ -1717,6 +1734,7 @@ select.ctl { appearance: none; padding-right: 10px; }
 
   function goTo(p, auto = true) {
     hush();
+    freeze(false);
     onRetry = null;
     pos = p;
     const it = TL[p];
@@ -1749,10 +1767,21 @@ select.ctl { appearance: none; padding-right: 10px; }
     if (pos < 0) { goTo(0); return; }
     const it = TL[pos];
     if (it.type !== 'scene') return;
-    if (playing) { playing = false; hush(); }
-    else {
-      if (line >= scenes[it.s].lines.length) line = scenes[it.s].lines.length - 1;
-      playing = true; speakLine();
+    if (playing) {
+      playing = false;
+      freeze(true);
+      // Hold a recorded clip where it is; anything else (captions only, browser voice) restarts the line on play
+      if (cur && cur.g === gen && !cur.a.paused && !cur.a.ended) { cur.a.pause(); cur.clear(); held = cur; } else hush();
+    } else {
+      playing = true;
+      freeze(false);
+      if (held && held.g === gen) {
+        const h = held; held = null;
+        h.a.play().then(() => h.resumeIn(((h.a.duration || 0) - h.a.currentTime) * 1000 / rate + 2500)).catch(() => { hush(); speakLine(); });
+      } else {
+        if (line >= scenes[it.s].lines.length) line = scenes[it.s].lines.length - 1;
+        speakLine();
+      }
     }
     updatePlayBtn();
   }

@@ -1658,18 +1658,6 @@ select.ctl { appearance: none; padding-right: 10px; }
   if (tts) { pickVoice(); tts.onvoiceschanged = pickVoice; }
 
   let clip = null, cur = null, held = null;
-  // The next line's clip is fetched while the current one plays, so lines follow each other without a loading pause
-  const pre = new Map();
-  const clipUrl = text => `audio/${hashText(text.replace(/<[^>]+>/g, ''))}.mp4`;
-  const preload = text => {
-    if (!text) return;
-    const url = clipUrl(text);
-    if (pre.has(url)) return;
-    const a = new Audio(url);
-    a.preload = 'auto';
-    pre.set(url, a);
-    if (pre.size > 4) pre.delete(pre.keys().next().value);
-  };
   function say(text, g, onDone) {
     let fired = false, wd;
     const plain = text.replace(/<[^>]+>/g, '');
@@ -1678,9 +1666,7 @@ select.ctl { appearance: none; padding-right: 10px; }
     if (muted) { wd = setTimeout(finish, est + 300); return; }
     if (clip) clip.pause();
     if (tts) tts.cancel();
-    const url = clipUrl(plain);
-    const a = clip = pre.get(url) || new Audio(url);
-    pre.delete(url);
+    const a = clip = new Audio(`audio/${hashText(plain)}.mp4`);
     a.playbackRate = rate;
     a.onended = finish;
     let fellBack = false;
@@ -1763,11 +1749,8 @@ select.ctl { appearance: none; padding-right: 10px; }
         line++;
         if (line >= sc.lines.length) goTo(pos + 1, true);
         else speakLine();
-      }, 600);
+      }, 450);
     });
-    // Warm up the clip for whatever plays next: the next line, or the first line of the next chapter
-    const nxt = line + 1 < sc.lines.length ? sc.lines[line + 1] : (TL[pos + 1] && TL[pos + 1].type === 'scene' ? scenes[TL[pos + 1].s].lines[0] : null);
-    if (!muted) preload(nxt);
   }
 
   function goTo(p, auto = true) {

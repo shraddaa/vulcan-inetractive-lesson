@@ -664,6 +664,17 @@ select.ctl { appearance: none; padding-right: 10px; }
         U(0, 0, pop(7.8, chip(560, -24, 120, 'Vulcan', 't')) + pop(8.2, T(620, 168, 'Vulcan is the tool for this step', 'sm tealt'))),
         G(1, draw('M620 132 V166', 'il t') + R(240, 170, 800, 420, 'layer', 18) + T(640, 206, 'one Vulcan project', 'sm tealt') +
              [[270, 230], [650, 230], [270, 400], [650, 400]].map(([x, y]) => R(x, y, 360, 150, 'il fillp', 14)).join('')),
+        // The four kinds of files drop in from the build step, then Vulcan joins them into one project.
+        // Each box keeps its name until the line that explains it in detail takes over.
+        [['Transform', 'models/orders.sql', gear, 450, 305], ['Check', 'tests/ · audits/', (x, y) => shield(x, y + 2, 't'), 830, 305],
+         ['Describe', 'semantics/sales.yml', tag, 450, 475], ['Serve', 'config.yaml · APIs', sparkle, 830, 475]].map(([t, f, ic, x, y], i) => {
+          const d = 0.4 + i * 0.6;
+          return U(1, 1, soon(fly(620, 110, x - 110, y, 0.9, `<g transform="translate(-10 -13)">${fileIcon(0, 0, 'il t')}</g>`, d), d + 1)) +
+            U(1, i + 1, pop(d + 0.9, `<circle class="il t fillt" cx="${x - 110}" cy="${y}" r="30"/>` + ic(x - 110, y) + T(x - 64, y - 6, t, 'ttl', 'start') + T(x - 64, y + 18, f, 'mono dim', 'start')));
+        }).join(''),
+        U(1, 1, [[270, 230], [650, 230], [270, 400], [650, 400]].map(([x, y]) => later(R(x, y, 360, 150, 'il t thickish', 14), 4.4)).join('') +
+             pop(4.9, `<circle class="tealfill" cx="640" cy="390" r="16"/>` + `<circle class="il t pulse" cx="640" cy="390" r="24"/>`) +
+             pop(5.3, T(640, 600, 'Vulcan reads them all as one project', 'sm tealt'))),
         G(2, R(270, 230, 360, 150, 'il t', 14) + gear(310, 272) + T(340, 280, 'Transform', 'ttl', 'start') +
              T(290, 320, 'models in SQL or Python', 'sm dim', 'start') + T(290, 344, 'one graph, built in order', 'sm dim', 'start') +
              arrow(296, 360, 606, 360, 't') + flowDots('M300 360 H600', 4, 3, 'dot', 4)),

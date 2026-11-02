@@ -1227,8 +1227,8 @@ select.ctl { appearance: none; padding-right: 10px; }
           // 3 The switch in config.yaml, and why segments stay out
           G(3, R(180, 650, 64, 32, 'il d fillp', 16) + later(R(180, 650, 64, 32, 'tealfill', 16), 1.6) + fly(196, 666, 228, 666, 0.5, `<circle class="il d fillp" r="11"/>`, 1.4) +
                T(262, 663, 'enable_rollup', 'mono', 'start') + T(262, 685, 'in config.yaml · off by default', 'sm dim', 'start') +
-               pop(6.5, chip(600, 650, 190, 'segment: completed', 'd') + P('M760 646 L800 612', 'il e dash') + P('M800 600 l12 12 m0 -12 l-12 12', 'il e') +
-                 T(695, 708, "segments can't be pre-aggregated", 'sm warn'))),
+               pop(6.5, `<circle class="il e" cx="614" cy="663" r="12"/>` + P('M605.5 671.5 l17 -17', 'il e') + chip(638, 650, 190, 'segment: completed', 'e') +
+                 T(614, 708, "segments can't be pre-aggregated: not in a rollup", 'sm warn', 'start'))),
           // 4 A business metric: one measure, on a time axis
           G(4, `<line class="il d" x1="1480" y1="430" x2="2280" y2="430"/>` + Array.from({ length: 8 }, (_, i) => T(1520 + i * 100, 456, 'W' + (i + 1), 'mono dim')).join('') +
                soon([['measure', 'total_revenue', 1600, 200], ['time', 'order_date', 1880, 180], ['granularity', 'week', 2130, 130]].map(([k, s, x, w], i) =>

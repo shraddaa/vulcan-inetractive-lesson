@@ -1046,7 +1046,7 @@ select.ctl { appearance: none; padding-right: 10px; }
         "If no target lists an event, nobody hears about it. And a model with no owner gets the project's default owner, or the first user in the list."
       ],
       recap: 'Events go to every target that lists them in notifyOn, and assertion failures also go straight to the model owner.',
-      cam: [[480, 300, 1.0], [195, 320, 1.2], [650, 330, 0.8], [650, 390, 0.8], [650, 390, 0.8]],
+      cam: [[480, 300, 1.0], [335, 315, 1.15], [650, 330, 0.8], [650, 390, 0.8], [650, 390, 0.8]],
       svg: (() => {
         const EV = ['run_failure', 'audit_failure', 'plan_change', 'dq_end', 'run_end', 'apply_failure'];
         const ey = i => 140 + i * 56;
@@ -1064,24 +1064,43 @@ select.ctl { appearance: none; padding-right: 10px; }
                soon(T(760, 290, '?', 'big dim'), 2.4) + person(740, 420, 'someone who can fix it') + phone(800, 300) +
                fly(240, 300, 828, 348, 1.6, env('il e'), 1)),
           // 1 Events happen inside Vulcan
-          G(1, EV.map((s, i) => pop(0.3 + i * 0.45, chip(80, ey(i), 230, s, 'd'))).join('') + pop(3, T(195, ey(6) + 18, '… and more', 'sm dim'))),
+          // Each event gets a small picture of what happens: a failed run, a failed check, a changed plan, the quality report, a finished run, a failed apply.
+          // While the events are introduced, a larger copy with a plain label sits beside each one.
+          (() => {
+            const D = [3.2, 4.2, 5.2, 6.4, 7.6, 8.1];
+            const SAY = ['a run stops with an error', 'an assertion fails', 'a plan changes models', 'quality checks report back', 'a run finishes', 'applying a plan fails'];
+            const icon = (i, x, y, d) => {
+              const fill = (cx, k, t) => `<circle class="il d fillp" cx="${cx}" cy="${y}" r="5"/><circle class="${k} fillin" style="animation-delay:${t}s" cx="${cx}" cy="${y}" r="5"/>`;
+              return [
+                P(`M${x - 14} ${y} H${x + 14}`, 'il d') + fill(x - 14, 'tealfill', d + 0.3) + fill(x, 'tealfill', d + 0.55) + fill(x + 14, 'emberfill', d + 0.9) + pop(d + 1.1, P(`M${x + 10} ${y - 14} l8 8 m0 -8 l-8 8`, 'il e')),
+                `<g transform="translate(${x} ${y}) scale(.68) translate(${-x} ${-y})"><g class="pulse">${shield(x, y - 1, 'e')}</g></g>`,
+                fileIcon(x - 10, y - 13, 'il t') + pop(d + 0.4, P(`M${x - 5} ${y - 1} h9`, 'il e')) + pop(d + 0.8, P(`M${x - 5} ${y + 6} h9 M${x - 0.5} ${y + 1.5} v9`, 'il t')),
+                `<path class="il t draw" pathLength="1" style="transition-delay:${d + 0.2}s" d="M${x - 15} ${y + 7} l7 -6 l6 4 l8 -11 l8 4"/>` + pop(d + 1.4, `<circle class="dot" cx="${x + 14}" cy="${y - 2}" r="3"/>`),
+                P(`M${x - 14} ${y} H${x + 14}`, 'il d') + [x - 14, x, x + 14].map((cx, j) => fill(cx, 'tealfill', d + 0.2 + j * 0.2)).join('') + pop(d + 0.9, P(`M${x + 8} ${y - 12} l3 3 l6 -7`, 'il t')),
+                arrow(x - 18, y, x - 2, y) + R(x, y - 9, 16, 18, 'il d fillp', 3) + pop(d + 0.7, P(`M${x + 2} ${y - 7} l12 14 m0 -14 l-12 14`, 'il e'))
+              ][i];
+            };
+            return G(1, EV.map((s, i) => pop(D[i], chip(130, ey(i), 180, s, 'd')) + pop(D[i], icon(i, 96, ey(i) + 13, D[i]))).join('') + pop(8.6, T(220, ey(6) + 18, '… and more', 'sm dim'))) +
+              U(1, 1, EV.map((s, i) => pop(D[i], `<g transform="translate(392 ${ey(i) + 13}) scale(1.35) translate(-392 ${-(ey(i) + 13)})">${icon(i, 392, ey(i) + 13, D[i])}</g>` +
+                T(430, ey(i) + 18, SAY[i], 'sm', 'start'))).join(''));
+          })(),
           // 2 Targets, each with its own notifyOn list; one event travels to the targets that list it
           G(2, T(1050, 80, 'targets · notifyOn', 'sm dim') +
                TG.map(([n, l, icon], i) => pop(0.3 + i * 0.6, R(880, ty(i), 340, 76, 'il fillp', 12) +
                  `<g transform="translate(914 ${ty(i) + 38})">${i === 0 ? T(0, 7, '#', 'ttl tealt') : icon(0)}</g>` +
                  T(944, ty(i) + 32, n, 'sm', 'start') + T(944, ty(i) + 56, l, 'mono dim', 'start'))).join('') +
-               later(`<rect class="chip t pulse" x="80" y="${ey(1)}" width="230" height="26" rx="13"/>`, 6.8) +
+               later(`<rect class="chip t pulse" x="130" y="${ey(1)}" width="180" height="26" rx="13"/>`, 6.8) +
                soon(fly(330, ey(1) + 13, 900, ty(0) + 38, 1.2, env('il t'), 7.2) + fly(330, ey(1) + 13, 900, ty(2) + 38, 1.2, env('il t'), 7.5), 8.8) +
                later(R(876, ty(0) - 4, 348, 84, 'il t', 14) + R(876, ty(2) - 4, 348, 84, 'il t', 14), 8.8) +
                ''),
           U(2, 2, pop(9.4, T(605, 580, 'each event goes to every target that lists it', 'sm tealt'))),
           // 3 Assertion failures also go to the model owner
-          G(3, `<rect class="chip e pulse" x="80" y="${ey(1)}" width="230" height="26" rx="13"/>` + T(195, 562, 'each model has an owner', 'sm dim') +
+          G(3, `<rect class="chip e pulse" x="130" y="${ey(1)}" width="180" height="26" rx="13"/>` + T(195, 562, 'each model has an owner', 'sm dim') +
                person(570, 650, 'Emily · owner of orders') + phone(612, 552) +
                fly(330, ey(1) + 13, 640, 600, 1.4, env('il e'), 1.6) +
                bubble(690, 556, 300, ['audit failed: orders', 'assertion failures also go to the owner'], 'warn', 3)),
           // 4 An event nobody lists fades out; a model with no owner falls back
-          G(4, `<rect class="chip e pulse" x="80" y="${ey(5)}" width="230" height="26" rx="13"/>` +
+          G(4, `<rect class="chip e pulse" x="130" y="${ey(5)}" width="180" height="26" rx="13"/>` +
                soon(fly(330, ey(5) + 13, 560, 440, 1.2, env('il e'), 0.6), 2.2) +
                pop(2.2, T(590, 446, 'no target lists it → nobody hears', 'sm warn', 'start')) +
                pop(5, chip(400, 482, 440, 'no owner → modelDefaults.owner, or the first user', 't')))

@@ -989,7 +989,7 @@ select.ctl { appearance: none; padding-right: 10px; }
                [20, 36, 52].map(x => `<circle class="il d" cx="${x}" cy="266" r="4"/>`).join('') + T(540, 271, 'models/orders.sql', 'mono dim', 'end') +
                [['SELECT', 24, 320, 0.3], ['*', 81, 320, 0.6], ['FROM', 24, 352, 0.9], ['bean_internal.orders', 65, 352, 1.1]].map(([s, x, y, d]) => pop(d, T(x, y, s, 'mono', 'start'))).join('') +
                pop(2.4, chip(24, 490, 250, 'also runs in every plan', 't')) +
-               `<path class="il t draw" pathLength="1" style="transition-delay:2.6s" d="M278 503 C 470 503 580 330 580 188"/>` +
+               `<path class="il t draw" pathLength="1" style="transition-delay:2.6s" d="M278 503 H556 Q586 503 586 473 V244"/>` + pop(3.6, P('M578 252 l8 -10 l8 10', 'il t')) +
                fly(-70, 300, 88, 314, 1.1, lens(0, 0, 'il e'), 3.6) +
                `<path class="il e draw" pathLength="1" style="transition-delay:4.6s;transition-duration:.6s" d="${sq}"/>` +
                bubble(110, 372, 330, ['rule: noselectstar', 'name the columns you need'], 'warn', 5.2)),
@@ -1026,7 +1026,7 @@ select.ctl { appearance: none; padding-right: 10px; }
                T(1262, 270, 'status', 'sm dim', 'start') +
                ['pass', 'warn', 'fail'].map((s, i) => `<circle class="il d" cx="1272" cy="${300 + i * 36}" r="9"/>` + T(1292, 305 + i * 36, s, 'sm', 'start')).join('') +
                soon(`<circle class="tealfill" cx="1272" cy="300" r="9"/>`, 8.4) + later(`<circle class="emberfill" cx="1272" cy="336" r="9"/>`, 8.5) +
-               phone(1420, 250) + fly(1300, 336, 1448, 300, 1, env('il e'), 9.4) + T(1448, 372, 'message sent', 'sm dim') +
+               phone(1420, 250) + fly(1350, 336, 1448, 300, 1, env('il e'), 9.4) + T(1448, 372, 'message sent', 'sm dim') +
                P('M800 530 H1480', 'il d dash') + flowDots('M800 530 H1480', 4, 3) +
                pop(6.2, T(1140, 514, 'data keeps flowing: quality checks report, they never block', 'sm tealt'))),
           // 5 Summary: what each pair of checkpoints guards
@@ -1046,7 +1046,7 @@ select.ctl { appearance: none; padding-right: 10px; }
         "If no target lists an event, nobody hears about it. And a model with no owner gets the project's default owner, or the first user in the list."
       ],
       recap: 'Events go to every target that lists them in notifyOn, and assertion failures also go straight to the model owner.',
-      cam: [[480, 330, 1.0], [195, 320, 1.2], [650, 330, 0.8], [650, 390, 0.8], [650, 390, 0.8]],
+      cam: [[480, 300, 1.0], [195, 320, 1.2], [650, 330, 0.8], [650, 390, 0.8], [650, 390, 0.8]],
       svg: (() => {
         const EV = ['run_failure', 'audit_failure', 'plan_change', 'dq_end', 'run_end', 'apply_failure'];
         const ey = i => 140 + i * 56;

@@ -675,15 +675,38 @@ select.ctl { appearance: none; padding-right: 10px; }
         U(1, 1, [[270, 230], [650, 230], [270, 400], [650, 400]].map(([x, y]) => later(R(x, y, 360, 150, 'il t thickish', 14), 4.4)).join('') +
              pop(4.9, `<circle class="tealfill" cx="640" cy="390" r="16"/>` + `<circle class="il t pulse" cx="640" cy="390" r="24"/>`) +
              pop(5.3, T(640, 620, 'Vulcan reads them all as one project', 'sm tealt'))),
-        G(2, R(270, 230, 360, 150, 'il t', 14) + gear(310, 272) + T(340, 280, 'Transform', 'ttl', 'start') +
-             T(290, 320, 'models in SQL or Python', 'sm dim', 'start') + T(290, 344, 'one graph, built in order', 'sm dim', 'start') +
-             arrow(296, 360, 606, 360, 't') + flowDots('M300 360 H600', 4, 3, 'dot', 4)),
-        G(3, R(650, 230, 360, 150, 'il t', 14) + `<g class="pulse">${shield(690, 274, 't')}</g>` + T(720, 280, 'Check', 'ttl', 'start') +
-             T(670, 320, 'assertions, tests, quality checks', 'sm dim', 'start') + T(670, 344, 'bad data stops on arrival', 'sm dim', 'start')),
-        G(4, R(270, 400, 360, 150, 'il t', 14) + tag(312, 442) + T(340, 450, 'Describe', 'ttl', 'start') +
-             T(290, 490, 'measures, dimensions, metrics', 'sm dim', 'start') + T(290, 514, 'defined once', 'sm dim', 'start')),
-        G(5, R(650, 400, 360, 150, 'il t', 14) + sparkle(690, 444) + T(720, 450, 'Serve', 'ttl', 'start') +
-             T(670, 490, 'SQL, REST and GraphQL APIs', 'sm dim', 'start') + T(670, 514, 'dashboards, apps, AI agents', 'sm dim', 'start')),
+        // Transform: messy raw pieces go into the model, then the graph builds in order
+        G(2, R(270, 230, 360, 150, 'il t', 14) + gear(310, 262) + T(340, 270, 'Transform', 'ttl', 'start') +
+             pop(0.8, chip(472, 252, 56, 'SQL', 't')) + pop(1.2, chip(536, 252, 76, 'Python', 't')) +
+             [[300, 312, 26, 10, 10], [326, 334, 16, 16, -14], [300, 354, 22, 9, 24], [330, 306, 14, 10, -30]].map(([x, y, w, h, r], i) =>
+               soon(fly(x, y, 400, 330, 0.9, `<rect class="il d fillp" x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" rx="2" transform="rotate(${r})"/>`, 2 + i * 0.3), 2.9 + i * 0.3)).join('') +
+             `<circle class="il t fillp" cx="400" cy="330" r="24"/>` + spin(400, 330, gear(400, 330), 4) +
+             [[465, 'raw'], [525, 'silver'], [585, 'gold']].map(([x, t], i) => `<circle class="il t fillp" cx="${x}" cy="330" r="11"/>` +
+               `<circle class="tealfill fillin" style="animation-delay:${6.5 + i * 0.8}s" cx="${x}" cy="330" r="7"/>` + T(x, 364, t, 'sm dim')).join('') +
+             arrow(426, 330, 452, 330, 't') + arrow(477, 330, 512, 330, 't') + arrow(537, 330, 572, 330, 't')),
+        // Check: good rows pass the checkpoint, a bad row is stopped as it arrives
+        G(3, R(650, 230, 360, 150, 'il t', 14) + `<g class="pulse">${shield(690, 264, 't')}</g>` + T(720, 270, 'Check', 'ttl', 'start') +
+             P('M672 335 H990', 'il d') + flowDots('M672 335 H822', 3, 1.8) + flowDots('M838 335 H990', 3, 1.8) +
+             `<rect class="tealfill" x="826" y="305" width="8" height="60" rx="3"/>` +
+             fly(672, 335, 804, 335, 1.4, R(-16, -8, 32, 16, 'badrow', 4), 5) +
+             pop(6.4, P('M797 328 l14 14 m0 -14 l-14 14', 'il e')) + pop(6.6, T(804, 372, 'stopped on arrival', 'sm warn'))),
+        // Describe: columns get business meaning, defined once, and every screen shows the same number
+        G(4, R(270, 400, 360, 150, 'il t', 14) + tag(312, 432) + T(340, 440, 'Describe', 'ttl', 'start') +
+             [['revenue', 335, 'measure'], ['store_name', 450, 'dimension'], ['order_date', 565, 'time']].map(([c, x, t], i) =>
+               R(x - 52, 458, 104, 26, 'il d fillp', 6) + T(x, 476, c, 'mono dim') +
+               fly(610, 420, x, 506, 0.9, R(-46, -11, 92, 22, 'chipf', 11) + T(0, 4, t, 'mono tealt'), 1 + i * 0.6)).join('') +
+             [400, 450, 500].map((x, i) => pop(5.5 + i * 0.3, R(x - 16, 526, 32, 20, 'il t fillp', 4) + P(`M${x - 5} 536 l3 3 l7 -7`, 'il t'))).join('')),
+        // Serve: one API answers SQL, REST and GraphQL, and requests reach every consumer through the access rules
+        G(5, R(650, 400, 360, 150, 'il t', 14) + sparkle(690, 434) + T(720, 440, 'Serve', 'ttl', 'start') +
+             [[452, 'bars'], [490, 'app'], [528, 'ai']].map(([y, k], i) => {
+               const d = `M778 488 H846 C 880 488 890 ${y} 928 ${y}`;
+               return P(d, 'il d') + pop(4 + i * 0.4, flowDots(d, 2, 1.4, 'dot', 3.5) +
+                 (k === 'bars' ? [8, 14, 11].map((h, j) => `<rect class="tealfill" x="${940 + j * 9}" y="${y + 7 - h}" width="6" height="${h}" rx="1.5"/>`).join('') :
+                  k === 'app' ? R(944, y - 12, 18, 26, 'il t', 4) : sparkle(953, y)));
+             }).join('') +
+             R(690, 470, 88, 36, 'il t fillp', 8) + soon(T(734, 493, 'SQL', 'mono tealt'), 1) +
+             `<g class="later" style="animation-delay:1.1s">${soon(T(734, 493, 'REST', 'mono tealt'), 2)}</g>` + later(T(734, 493, 'GraphQL', 'mono tealt'), 2.1) +
+             pop(8, lockIcon(846, 486, 'il t fillp'))),
         U(6, 6, veil(-400, -300, 2100, 1400) + node(480, 150, 320, 70, 'Vulcan', 'sends SQL to your engine', 'layer') +
              draw('M640 224 V330', 'il t') + flowDots('M640 224 V330', 3, 1.6) +
              tank(640, 420, 300, 150, 'your warehouse', 'the data stays here') + lockIcon(640, 520) +
